@@ -65,47 +65,49 @@ static const int natural_scrolling = 0;
 static const char *termcmd[] = { "alacritty", NULL };
 static const char *menucmd[] = { "bemenu-run", NULL };
 
+#include "keys.h"
 static const Key keys[] = {
 	/* modifier                  key          function        argument */
-	{ MODKEY,                    33,          spawn,          {.v = menucmd} }, /* p */
-	{ MODKEY|WLR_MODIFIER_SHIFT, 36,          spawn,          {.v = termcmd} }, /* Return */
-	{ MODKEY,                    44,          focusstack,     {.i = +1} },      /* j */
-	{ MODKEY,                    45,          focusstack,     {.i = -1} },      /* k */
-	{ MODKEY,                    31,          incnmaster,     {.i = +1} },      /* i */
-	{ MODKEY,                    40,          incnmaster,     {.i = -1} },      /* d */
-	{ MODKEY,                    43,          setmfact,       {.f = -0.05} },   /* h */
-	{ MODKEY,                    46,          setmfact,       {.f = +0.05} },   /* l */
-	{ MODKEY,                    36,          zoom,           {0} },            /* Return */
-	{ MODKEY,                    23,          view,           {0} },            /* Tab */
-	{ MODKEY|WLR_MODIFIER_SHIFT, 54,          killclient,     {0} },            /* c */
-	{ MODKEY,                    28,          setlayout,      {.v = &layouts[0]} }, /* t */
-	{ MODKEY,                    41,          setlayout,      {.v = &layouts[1]} }, /* f */
-	{ MODKEY,                    58,          setlayout,      {.v = &layouts[2]} }, /* m */
-	{ MODKEY,                    65,          setlayout,      {0} },            /* Space */
-	{ MODKEY|WLR_MODIFIER_SHIFT, 65,          togglefloating, {0} },            /* Space */
-	{ MODKEY,                    26,          togglefullscreen, {0} },          /* e */
-	{ MODKEY,                    19,          view,           {.ui = ~0} },     /* 0 */
-	{ MODKEY|WLR_MODIFIER_SHIFT, 16,          tag,            {.ui = ~0} },     /* 0 */
-	{ MODKEY,                    59,          focusmon,       {.i = WLR_DIRECTION_LEFT} },  /* comma */
-	{ MODKEY,                    60,          focusmon,       {.i = WLR_DIRECTION_RIGHT} }, /* period */
-	{ MODKEY|WLR_MODIFIER_SHIFT, 59,          tagmon,         {.i = WLR_DIRECTION_LEFT} },  /* comma */
-	{ MODKEY|WLR_MODIFIER_SHIFT, 60,          tagmon,         {.i = WLR_DIRECTION_RIGHT} }, /* period */
-	TAGKEYS(                     10,                          0),               /* 1 */
-	TAGKEYS(                     11,                          1),               /* 2 */
-	TAGKEYS(                     12,                          2),               /* 3 */
-	TAGKEYS(                     13,                          3),               /* 4 */
-	TAGKEYS(                     14,                          4),               /* 5 */
-	TAGKEYS(                     15,                          5),               /* 6 */
-	TAGKEYS(                     16,                          6),               /* 7 */
-	TAGKEYS(                     17,                          7),               /* 8 */
-	TAGKEYS(                     18,                          8),               /* 9 */
-	{ MODKEY|WLR_MODIFIER_SHIFT, 24,          quit,           {0} },            /* q */
+	{ MODKEY,                    Key_p,       spawn,          {.v = menucmd} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, Key_Return,  spawn,          {.v = termcmd} },
+	{ MODKEY,                    Key_j,       focusstack,     {.i = +1} },
+	{ MODKEY,                    Key_k,       focusstack,     {.i = -1} },
+	{ MODKEY,                    Key_i,       incnmaster,     {.i = +1} },
+	{ MODKEY,                    Key_d,       incnmaster,     {.i = -1} },
+	{ MODKEY,                    Key_h,       setmfact,       {.f = -0.05} },
+	{ MODKEY,                    Key_l,       setmfact,       {.f = +0.05} },
+	{ MODKEY,                    Key_Return,  zoom,           {0} },
+	{ MODKEY,                    Key_Tab,     view,           {0} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, Key_c,       killclient,     {0} },
+	{ MODKEY,                    Key_t,       setlayout,      {.v = &layouts[0]} },
+	{ MODKEY,                    Key_f,       setlayout,      {.v = &layouts[1]} },
+	{ MODKEY,                    Key_m,       setlayout,      {.v = &layouts[2]} },
+	{ MODKEY,                    Key_space,   setlayout,      {0} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, Key_space,   togglefloating, {0} },
+	{ MODKEY,                    Key_e,       togglefullscreen, {0} },
+	{ MODKEY,                    Key_0,       view,           {.ui = ~0} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, Key_0,       tag,            {.ui = ~0} },
+	{ MODKEY,                    Key_comma,   focusmon,       {.i = WLR_DIRECTION_LEFT} },
+	{ MODKEY,                    Key_period,  focusmon,       {.i = WLR_DIRECTION_RIGHT} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, Key_comma,   tagmon,         {.i = WLR_DIRECTION_LEFT} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, Key_period,  tagmon,         {.i = WLR_DIRECTION_RIGHT} },
+	TAGKEYS(                     Key_1,                       0),
+	TAGKEYS(                     Key_2,                       1),
+	TAGKEYS(                     Key_3,                       2),
+	TAGKEYS(                     Key_4,                       3),
+	TAGKEYS(                     Key_5,                       4),
+	TAGKEYS(                     Key_6,                       5),
+	TAGKEYS(                     Key_7,                       6),
+	TAGKEYS(                     Key_8,                       7),
+	TAGKEYS(                     Key_9,                       8),
+	{ MODKEY|WLR_MODIFIER_SHIFT, Key_q,       quit,           {0} },
 
 	/* Ctrl-Alt-Backspace and Ctrl-Alt-Fx used to be handled by X server */
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT, 22, quit,           {0} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,Key_BackSpace, quit, {0} },
 #define CHVT(KEY,n) { WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT, KEY, chvt, {.ui = (n)} }
-	CHVT(67, 1), CHVT(68, 2), CHVT(69, 3), CHVT(70, 4),  CHVT(71, 5),  CHVT(72, 6),
-	CHVT(73, 7), CHVT(74, 8), CHVT(75, 9), CHVT(76, 10), CHVT(95, 11), CHVT(96, 12),
+	CHVT(Key_F1, 1), CHVT(Key_F2,  2),  CHVT(Key_F3,  3),  CHVT(Key_F4,  4),
+	CHVT(Key_F5, 5), CHVT(Key_F6,  6),  CHVT(Key_F7,  7),  CHVT(Key_F8,  8),
+	CHVT(Key_F9, 9), CHVT(Key_F10, 10), CHVT(Key_F11, 11), CHVT(Key_F12, 12),
 };
 
 static const Button buttons[] = {
