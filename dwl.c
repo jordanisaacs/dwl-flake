@@ -267,7 +267,7 @@ static void render(struct wlr_surface *surface, int sx, int sy, void *data);
 static void renderclients(Monitor *m, struct timespec *now);
 static void renderlayer(struct wl_list *layer_surfaces, struct timespec *now);
 static void rendermon(struct wl_listener *listener, void *data);
-static void resize(Client *c, int x, int y, int w, int h, int interact);
+static void resize(Client *c, int x, int y, int w, int h, int interact, int draw_borders);
 static void run(char *startup_cmd);
 static void scalebox(struct wlr_box *box, float scale);
 static Client *selclient(void);
@@ -1944,6 +1944,15 @@ setlayout(const Arg *arg)
 		selmon->sellt ^= 1;
 	if (arg && arg->v)
 		selmon->lt[selmon->sellt] = (Layout *)arg->v;
+	if (!selmon->lt[selmon->sellt]->arrange) {
+		/* floating layout, draw borders around all clients */
+		Client *c;
+		wl_list_for_each(c, &clients, link) {
+			if (c->bw)
+				continue;
+			resize(c, c->geom.x, c->geom.y, c->geom.width, c->geom.height, 0, 1);
+		}
+	}
 	/* TODO change layout symbol? */
 	arrange(selmon);
 	printstatus();
