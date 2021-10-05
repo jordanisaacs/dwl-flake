@@ -107,12 +107,12 @@ static const Key keys[] = {
 	TAGKEYS(                     Key_8,                       7),
 	TAGKEYS(                     Key_9,                       8),
 	{ MODKEY|WLR_MODIFIER_SHIFT, Key_q,       quit,           {0} },
-    { 0,                         Key_XF86AudioLowerVolume,    {.v = audiodowncmd } },
-    { 0,                         Key_XF86AudioRaiseVolume,    {.v = audioupcmd } },
-    { 0,                         Key_XF86AudioMute,           {.v = audiomutcmd } },
-    { 0,                         Key_XF86AudioPlay,           {.v = audioplaycmd } },
-    { 0,                         Key_XF86AudioForward,        {.v = audioforwcmd } },
-    { 0,                         Key_XF86AudioPrev,           {.v = audioprevcmd } },
+    { 0,                         Key_XF86AudioLowerVolume,  spawn,  {.v = audiodowncmd } },
+    { 0,                         Key_XF86AudioRaiseVolume,  spawn,  {.v = audioupcmd } },
+    { 0,                         Key_XF86AudioMute,         spawn,  {.v = audiomutcmd } },
+    { 0,                         Key_XF86AudioPlay,         spawn,  {.v = audioplaycmd } },
+    { 0,                         Key_XF86AudioForward,      spawn,  {.v = audioforwcmd } },
+    { 0,                         Key_XF86AudioPrev,         spawn,  {.v = audioprevcmd } },
 
 	/* Ctrl-Alt-Backspace and Ctrl-Alt-Fx used to be handled by X server */
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,Key_BackSpace, quit, {0} },
