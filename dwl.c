@@ -21,6 +21,7 @@
 #include <wlr/types/wlr_export_dmabuf_v1.h>
 #include <wlr/types/wlr_gamma_control_v1.h>
 #include <wlr/types/wlr_input_device.h>
+#include <wlr/types/wlr_input_inhibitor.h>
 #include <wlr/types/wlr_idle.h>
 #include <wlr/types/wlr_layer_shell_v1.h>
 #include <wlr/types/wlr_keyboard.h>
@@ -127,6 +128,7 @@ typedef struct {
 	uint32_t mod;
 	xkb_keysym_t keysym;
 	void (*func)(const Arg *);
+    bool locked;
 	const Arg arg;
 } Key;
 
@@ -316,6 +318,7 @@ static struct wl_list fstack;  /* focus order */
 static struct wl_list stack;   /* stacking z-order */
 static struct wl_list independents;
 static struct wlr_idle *idle;
+static struct wlr_input_inhibit_manager *input_inhibit_mgr;
 static struct wlr_layer_shell_v1 *layer_shell;
 static struct wlr_output_manager_v1 *output_mgr;
 static struct wlr_presentation *presentation;
@@ -1209,11 +1212,14 @@ keybinding(uint32_t mods, xkb_keysym_t sym)
 	 * Here we handle compositor keybindings. This is when the compositor is
 	 * processing keys, rather than passing them on to the client for its own
 	 * processing.
+     * If there is an active input_inhibit lock and it is not a locked keybinding
+     * then do not handle
 	 */
 	int handled = 0;
 	const Key *k;
 	for (k = keys; k < END(keys); k++) {
-		if (CLEANMASK(mods) == CLEANMASK(k->mod) &&
+		if ((!input_inhibit_mgr->active_inhibitor || k->locked) &&
+                CLEANMASK(mods) == CLEANMASK(k->mod) &&
 				sym == k->keysym && k->func) {
 			k->func(&k->arg);
 			handled = 1;
@@ -2056,6 +2062,9 @@ setup(void)
 
 	xdg_shell = wlr_xdg_shell_create(dpy);
 	wl_signal_add(&xdg_shell->events.new_surface, &new_xdg_surface);
+
+    /* Set up the input_inhibit_manager */
+    input_inhibit_mgr = wlr_input_inhibit_manager_create(dpy);
 
 	/* Use decoration protocols to negotiate server-side decorations */
 	wlr_server_decoration_manager_set_default_mode(
