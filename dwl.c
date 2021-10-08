@@ -1322,6 +1322,10 @@ void
 monocle(Monitor *m)
 {
 	Client *c;
+    if (speedmonocle && (c = xytoclient(cursor->x, cursor->y)) && !(c->isfloating || c->isfullscreen)) {
+        wl_list_remove(&c->slink);
+        wl_list_insert(&stack, &c->slink);
+    }
 
 	wl_list_for_each(c, &clients, link) {
 		if (!VISIBLEON(c, m) || c->isfloating || c->isfullscreen)
