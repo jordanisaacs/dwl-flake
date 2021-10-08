@@ -1,0 +1,535 @@
+From b7fe338f3eddc28cb0e063d9ebfd5f189b81a834 Mon Sep 17 00:00:00 2001
+From: Sevz17 <leohdz172@outlook.com>
+Date: Fri, 4 Jun 2021 16:51:01 -0500
+Subject: [PATCH 1/2] use keycodes instead keysyms
+
+---
+ config.def.h | 83 ++++++++++++++++++++++++++--------------------------
+ dwl.c        | 16 ++++------
+ 2 files changed, 46 insertions(+), 53 deletions(-)
+
+diff --git a/config.def.h b/config.def.h
+index 089aa379..a9192dcb 100644
+--- a/config.def.h
++++ b/config.def.h
+@@ -52,11 +52,11 @@ static const int tap_to_click = 1;
+ static const int natural_scrolling = 0;
+ 
+ #define MODKEY WLR_MODIFIER_ALT
+-#define TAGKEYS(KEY,SKEY,TAG) \
++#define TAGKEYS(KEY,TAG) \
+ 	{ MODKEY,                    KEY,            view,            {.ui = 1 << TAG} }, \
+ 	{ MODKEY|WLR_MODIFIER_CTRL,  KEY,            toggleview,      {.ui = 1 << TAG} }, \
+-	{ MODKEY|WLR_MODIFIER_SHIFT, SKEY,           tag,             {.ui = 1 << TAG} }, \
+-	{ MODKEY|WLR_MODIFIER_CTRL|WLR_MODIFIER_SHIFT,SKEY,toggletag, {.ui = 1 << TAG} }
++	{ MODKEY|WLR_MODIFIER_SHIFT, KEY,            tag,             {.ui = 1 << TAG} }, \
++	{ MODKEY|WLR_MODIFIER_CTRL|WLR_MODIFIER_SHIFT,KEY,toggletag,  {.ui = 1 << TAG} }
+ 
+ /* helper for spawning shell commands in the pre dwm-5.0 fashion */
+ #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
+@@ -66,47 +66,46 @@ static const char *termcmd[] = { "alacritty", NULL };
+ static const char *menucmd[] = { "bemenu-run", NULL };
+ 
+ static const Key keys[] = {
+-	/* Note that Shift changes certain key codes: c -> C, 2 -> at, etc. */
+-	/* modifier                  key                 function        argument */
+-	{ MODKEY,                    XKB_KEY_p,          spawn,          {.v = menucmd} },
+-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_Return,     spawn,          {.v = termcmd} },
+-	{ MODKEY,                    XKB_KEY_j,          focusstack,     {.i = +1} },
+-	{ MODKEY,                    XKB_KEY_k,          focusstack,     {.i = -1} },
+-	{ MODKEY,                    XKB_KEY_i,          incnmaster,     {.i = +1} },
+-	{ MODKEY,                    XKB_KEY_d,          incnmaster,     {.i = -1} },
+-	{ MODKEY,                    XKB_KEY_h,          setmfact,       {.f = -0.05} },
+-	{ MODKEY,                    XKB_KEY_l,          setmfact,       {.f = +0.05} },
+-	{ MODKEY,                    XKB_KEY_Return,     zoom,           {0} },
+-	{ MODKEY,                    XKB_KEY_Tab,        view,           {0} },
+-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_C,          killclient,     {0} },
+-	{ MODKEY,                    XKB_KEY_t,          setlayout,      {.v = &layouts[0]} },
+-	{ MODKEY,                    XKB_KEY_f,          setlayout,      {.v = &layouts[1]} },
+-	{ MODKEY,                    XKB_KEY_m,          setlayout,      {.v = &layouts[2]} },
+-	{ MODKEY,                    XKB_KEY_space,      setlayout,      {0} },
+-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_space,      togglefloating, {0} },
+-	{ MODKEY, 					 XKB_KEY_e,    		togglefullscreen, {0} },
+-	{ MODKEY,                    XKB_KEY_0,          view,           {.ui = ~0} },
+-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_parenright, tag,            {.ui = ~0} },
+-	{ MODKEY,                    XKB_KEY_comma,      focusmon,       {.i = WLR_DIRECTION_LEFT} },
+-	{ MODKEY,                    XKB_KEY_period,     focusmon,       {.i = WLR_DIRECTION_RIGHT} },
+-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_less,       tagmon,         {.i = WLR_DIRECTION_LEFT} },
+-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_greater,    tagmon,         {.i = WLR_DIRECTION_RIGHT} },
+-	TAGKEYS(          XKB_KEY_1, XKB_KEY_exclam,                     0),
+-	TAGKEYS(          XKB_KEY_2, XKB_KEY_at,                         1),
+-	TAGKEYS(          XKB_KEY_3, XKB_KEY_numbersign,                 2),
+-	TAGKEYS(          XKB_KEY_4, XKB_KEY_dollar,                     3),
+-	TAGKEYS(          XKB_KEY_5, XKB_KEY_percent,                    4),
+-	TAGKEYS(          XKB_KEY_6, XKB_KEY_caret,                      5),
+-	TAGKEYS(          XKB_KEY_7, XKB_KEY_ampersand,                  6),
+-	TAGKEYS(          XKB_KEY_8, XKB_KEY_asterisk,                   7),
+-	TAGKEYS(          XKB_KEY_9, XKB_KEY_parenleft,                  8),
+-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_Q,          quit,           {0} },
++	/* modifier                  key          function        argument */
++	{ MODKEY,                    33,          spawn,          {.v = menucmd} }, /* p */
++	{ MODKEY|WLR_MODIFIER_SHIFT, 36,          spawn,          {.v = termcmd} }, /* Return */
++	{ MODKEY,                    44,          focusstack,     {.i = +1} },      /* j */
++	{ MODKEY,                    45,          focusstack,     {.i = -1} },      /* k */
++	{ MODKEY,                    31,          incnmaster,     {.i = +1} },      /* i */
++	{ MODKEY,                    40,          incnmaster,     {.i = -1} },      /* d */
++	{ MODKEY,                    43,          setmfact,       {.f = -0.05} },   /* h */
++	{ MODKEY,                    46,          setmfact,       {.f = +0.05} },   /* l */
++	{ MODKEY,                    36,          zoom,           {0} },            /* Return */
++	{ MODKEY,                    23,          view,           {0} },            /* Tab */
++	{ MODKEY|WLR_MODIFIER_SHIFT, 54,          killclient,     {0} },            /* c */
++	{ MODKEY,                    28,          setlayout,      {.v = &layouts[0]} }, /* t */
++	{ MODKEY,                    41,          setlayout,      {.v = &layouts[1]} }, /* f */
++	{ MODKEY,                    58,          setlayout,      {.v = &layouts[2]} }, /* m */
++	{ MODKEY,                    65,          setlayout,      {0} },            /* Space */
++	{ MODKEY|WLR_MODIFIER_SHIFT, 65,          togglefloating, {0} },            /* Space */
++	{ MODKEY,                    26,          togglefullscreen, {0} },          /* e */
++	{ MODKEY,                    19,          view,           {.ui = ~0} },     /* 0 */
++	{ MODKEY|WLR_MODIFIER_SHIFT, 16,          tag,            {.ui = ~0} },     /* 0 */
++	{ MODKEY,                    59,          focusmon,       {.i = WLR_DIRECTION_LEFT} },  /* comma */
++	{ MODKEY,                    60,          focusmon,       {.i = WLR_DIRECTION_RIGHT} }, /* period */
++	{ MODKEY|WLR_MODIFIER_SHIFT, 59,          tagmon,         {.i = WLR_DIRECTION_LEFT} },  /* comma */
++	{ MODKEY|WLR_MODIFIER_SHIFT, 60,          tagmon,         {.i = WLR_DIRECTION_RIGHT} }, /* period */
++	TAGKEYS(                     10,                          0),               /* 1 */
++	TAGKEYS(                     11,                          1),               /* 2 */
++	TAGKEYS(                     12,                          2),               /* 3 */
++	TAGKEYS(                     13,                          3),               /* 4 */
++	TAGKEYS(                     14,                          4),               /* 5 */
++	TAGKEYS(                     15,                          5),               /* 6 */
++	TAGKEYS(                     16,                          6),               /* 7 */
++	TAGKEYS(                     17,                          7),               /* 8 */
++	TAGKEYS(                     18,                          8),               /* 9 */
++	{ MODKEY|WLR_MODIFIER_SHIFT, 24,          quit,           {0} },            /* q */
+ 
+ 	/* Ctrl-Alt-Backspace and Ctrl-Alt-Fx used to be handled by X server */
+-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_Terminate_Server, quit, {0} },
+-#define CHVT(n) { WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_XF86Switch_VT_##n, chvt, {.ui = (n)} }
+-	CHVT(1), CHVT(2), CHVT(3), CHVT(4), CHVT(5), CHVT(6),
+-	CHVT(7), CHVT(8), CHVT(9), CHVT(10), CHVT(11), CHVT(12),
++	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT, 22, quit,           {0} },
++#define CHVT(KEY,n) { WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT, KEY, chvt, {.ui = (n)} }
++	CHVT(67, 1), CHVT(68, 2), CHVT(69, 3), CHVT(70, 4),  CHVT(71, 5),  CHVT(72, 6),
++	CHVT(73, 7), CHVT(74, 8), CHVT(75, 9), CHVT(76, 10), CHVT(95, 11), CHVT(96, 12),
+ };
+ 
+ static const Button buttons[] = {
+diff --git a/dwl.c b/dwl.c
+index a8e1dcd5..d999a066 100644
+--- a/dwl.c
++++ b/dwl.c
+@@ -123,7 +123,7 @@ typedef struct {
+ 
+ typedef struct {
+ 	uint32_t mod;
+-	xkb_keysym_t keysym;
++	xkb_keycode_t keycode;
+ 	void (*func)(const Arg *);
+ 	const Arg arg;
+ } Key;
+@@ -241,7 +241,7 @@ static void fullscreennotify(struct wl_listener *listener, void *data);
+ static Client *focustop(Monitor *m);
+ static void incnmaster(const Arg *arg);
+ static void inputdevice(struct wl_listener *listener, void *data);
+-static int keybinding(uint32_t mods, xkb_keysym_t sym);
++static int keybinding(uint32_t mods, xkb_keycode_t keycode);
+ static void keypress(struct wl_listener *listener, void *data);
+ static void keypressmod(struct wl_listener *listener, void *data);
+ static void killclient(const Arg *arg);
+@@ -1199,7 +1199,7 @@ inputdevice(struct wl_listener *listener, void *data)
+ }
+ 
+ int
+-keybinding(uint32_t mods, xkb_keysym_t sym)
++keybinding(uint32_t mods, xkb_keycode_t keycode)
+ {
+ 	/*
+ 	 * Here we handle compositor keybindings. This is when the compositor is
+@@ -1210,7 +1210,7 @@ keybinding(uint32_t mods, xkb_keysym_t sym)
+ 	const Key *k;
+ 	for (k = keys; k < END(keys); k++) {
+ 		if (CLEANMASK(mods) == CLEANMASK(k->mod) &&
+-				sym == k->keysym && k->func) {
++				keycode == k->keycode && k->func) {
+ 			k->func(&k->arg);
+ 			handled = 1;
+ 		}
+@@ -1221,17 +1221,12 @@ keybinding(uint32_t mods, xkb_keysym_t sym)
+ void
+ keypress(struct wl_listener *listener, void *data)
+ {
+-	int i;
+ 	/* This event is raised when a key is pressed or released. */
+ 	Keyboard *kb = wl_container_of(listener, kb, key);
+ 	struct wlr_event_keyboard_key *event = data;
+ 
+ 	/* Translate libinput keycode -> xkbcommon */
+ 	uint32_t keycode = event->keycode + 8;
+-	/* Get a list of keysyms based on the keymap for this keyboard */
+-	const xkb_keysym_t *syms;
+-	int nsyms = xkb_state_key_get_syms(
+-			kb->device->keyboard->xkb_state, keycode, &syms);
+ 
+ 	int handled = 0;
+ 	uint32_t mods = wlr_keyboard_get_modifiers(kb->device->keyboard);
+@@ -1240,8 +1235,7 @@ keypress(struct wl_listener *listener, void *data)
+ 
+ 	/* On _press_, attempt to process a compositor keybinding. */
+ 	if (event->state == WL_KEYBOARD_KEY_STATE_PRESSED)
+-		for (i = 0; i < nsyms; i++)
+-			handled = keybinding(mods, syms[i]) || handled;
++		handled = keybinding(mods, keycode) || handled;
+ 
+ 	if (!handled) {
+ 		/* Pass unhandled keycodes along to the client. */
+
+From 1daec18ae1706f191ae1e86847c9aaa5cbf92c34 Mon Sep 17 00:00:00 2001
+From: Sevz17 <leohdz172@outlook.com>
+Date: Fri, 4 Jun 2021 20:30:03 -0500
+Subject: [PATCH 2/2] create a file with macros
+
+instead of use the keycode as is, use macros
+with the default xkb_rule_names
+---
+ config.def.h |  74 ++++++++--------
+ keys.h       | 242 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 280 insertions(+), 36 deletions(-)
+ create mode 100644 keys.h
+
+diff --git a/config.def.h b/config.def.h
+index a9192dcb..0e3c83df 100644
+--- a/config.def.h
++++ b/config.def.h
+@@ -65,47 +65,49 @@ static const int natural_scrolling = 0;
+ static const char *termcmd[] = { "alacritty", NULL };
+ static const char *menucmd[] = { "bemenu-run", NULL };
+ 
++#include "keys.h"
+ static const Key keys[] = {
+ 	/* modifier                  key          function        argument */
+-	{ MODKEY,                    33,          spawn,          {.v = menucmd} }, /* p */
+-	{ MODKEY|WLR_MODIFIER_SHIFT, 36,          spawn,          {.v = termcmd} }, /* Return */
+-	{ MODKEY,                    44,          focusstack,     {.i = +1} },      /* j */
+-	{ MODKEY,                    45,          focusstack,     {.i = -1} },      /* k */
+-	{ MODKEY,                    31,          incnmaster,     {.i = +1} },      /* i */
+-	{ MODKEY,                    40,          incnmaster,     {.i = -1} },      /* d */
+-	{ MODKEY,                    43,          setmfact,       {.f = -0.05} },   /* h */
+-	{ MODKEY,                    46,          setmfact,       {.f = +0.05} },   /* l */
+-	{ MODKEY,                    36,          zoom,           {0} },            /* Return */
+-	{ MODKEY,                    23,          view,           {0} },            /* Tab */
+-	{ MODKEY|WLR_MODIFIER_SHIFT, 54,          killclient,     {0} },            /* c */
+-	{ MODKEY,                    28,          setlayout,      {.v = &layouts[0]} }, /* t */
+-	{ MODKEY,                    41,          setlayout,      {.v = &layouts[1]} }, /* f */
+-	{ MODKEY,                    58,          setlayout,      {.v = &layouts[2]} }, /* m */
+-	{ MODKEY,                    65,          setlayout,      {0} },            /* Space */
+-	{ MODKEY|WLR_MODIFIER_SHIFT, 65,          togglefloating, {0} },            /* Space */
+-	{ MODKEY,                    26,          togglefullscreen, {0} },          /* e */
+-	{ MODKEY,                    19,          view,           {.ui = ~0} },     /* 0 */
+-	{ MODKEY|WLR_MODIFIER_SHIFT, 16,          tag,            {.ui = ~0} },     /* 0 */
+-	{ MODKEY,                    59,          focusmon,       {.i = WLR_DIRECTION_LEFT} },  /* comma */
+-	{ MODKEY,                    60,          focusmon,       {.i = WLR_DIRECTION_RIGHT} }, /* period */
+-	{ MODKEY|WLR_MODIFIER_SHIFT, 59,          tagmon,         {.i = WLR_DIRECTION_LEFT} },  /* comma */
+-	{ MODKEY|WLR_MODIFIER_SHIFT, 60,          tagmon,         {.i = WLR_DIRECTION_RIGHT} }, /* period */
+-	TAGKEYS(                     10,                          0),               /* 1 */
+-	TAGKEYS(                     11,                          1),               /* 2 */
+-	TAGKEYS(                     12,                          2),               /* 3 */
+-	TAGKEYS(                     13,                          3),               /* 4 */
+-	TAGKEYS(                     14,                          4),               /* 5 */
+-	TAGKEYS(                     15,                          5),               /* 6 */
+-	TAGKEYS(                     16,                          6),               /* 7 */
+-	TAGKEYS(                     17,                          7),               /* 8 */
+-	TAGKEYS(                     18,                          8),               /* 9 */
+-	{ MODKEY|WLR_MODIFIER_SHIFT, 24,          quit,           {0} },            /* q */
++	{ MODKEY,                    Key_p,       spawn,          {.v = menucmd} },
++	{ MODKEY|WLR_MODIFIER_SHIFT, Key_Return,  spawn,          {.v = termcmd} },
++	{ MODKEY,                    Key_j,       focusstack,     {.i = +1} },
++	{ MODKEY,                    Key_k,       focusstack,     {.i = -1} },
++	{ MODKEY,                    Key_i,       incnmaster,     {.i = +1} },
++	{ MODKEY,                    Key_d,       incnmaster,     {.i = -1} },
++	{ MODKEY,                    Key_h,       setmfact,       {.f = -0.05} },
++	{ MODKEY,                    Key_l,       setmfact,       {.f = +0.05} },
++	{ MODKEY,                    Key_Return,  zoom,           {0} },
++	{ MODKEY,                    Key_Tab,     view,           {0} },
++	{ MODKEY|WLR_MODIFIER_SHIFT, Key_c,       killclient,     {0} },
++	{ MODKEY,                    Key_t,       setlayout,      {.v = &layouts[0]} },
++	{ MODKEY,                    Key_f,       setlayout,      {.v = &layouts[1]} },
++	{ MODKEY,                    Key_m,       setlayout,      {.v = &layouts[2]} },
++	{ MODKEY,                    Key_space,   setlayout,      {0} },
++	{ MODKEY|WLR_MODIFIER_SHIFT, Key_space,   togglefloating, {0} },
++	{ MODKEY,                    Key_e,       togglefullscreen, {0} },
++	{ MODKEY,                    Key_0,       view,           {.ui = ~0} },
++	{ MODKEY|WLR_MODIFIER_SHIFT, Key_0,       tag,            {.ui = ~0} },
++	{ MODKEY,                    Key_comma,   focusmon,       {.i = WLR_DIRECTION_LEFT} },
++	{ MODKEY,                    Key_period,  focusmon,       {.i = WLR_DIRECTION_RIGHT} },
++	{ MODKEY|WLR_MODIFIER_SHIFT, Key_comma,   tagmon,         {.i = WLR_DIRECTION_LEFT} },
++	{ MODKEY|WLR_MODIFIER_SHIFT, Key_period,  tagmon,         {.i = WLR_DIRECTION_RIGHT} },
++	TAGKEYS(                     Key_1,                       0),
++	TAGKEYS(                     Key_2,                       1),
++	TAGKEYS(                     Key_3,                       2),
++	TAGKEYS(                     Key_4,                       3),
++	TAGKEYS(                     Key_5,                       4),
++	TAGKEYS(                     Key_6,                       5),
++	TAGKEYS(                     Key_7,                       6),
++	TAGKEYS(                     Key_8,                       7),
++	TAGKEYS(                     Key_9,                       8),
++	{ MODKEY|WLR_MODIFIER_SHIFT, Key_q,       quit,           {0} },
+ 
+ 	/* Ctrl-Alt-Backspace and Ctrl-Alt-Fx used to be handled by X server */
+-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT, 22, quit,           {0} },
++	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,Key_BackSpace, quit, {0} },
+ #define CHVT(KEY,n) { WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT, KEY, chvt, {.ui = (n)} }
+-	CHVT(67, 1), CHVT(68, 2), CHVT(69, 3), CHVT(70, 4),  CHVT(71, 5),  CHVT(72, 6),
+-	CHVT(73, 7), CHVT(74, 8), CHVT(75, 9), CHVT(76, 10), CHVT(95, 11), CHVT(96, 12),
++	CHVT(Key_F1, 1), CHVT(Key_F2,  2),  CHVT(Key_F3,  3),  CHVT(Key_F4,  4),
++	CHVT(Key_F5, 5), CHVT(Key_F6,  6),  CHVT(Key_F7,  7),  CHVT(Key_F8,  8),
++	CHVT(Key_F9, 9), CHVT(Key_F10, 10), CHVT(Key_F11, 11), CHVT(Key_F12, 12),
+ };
+ 
+ static const Button buttons[] = {
+diff --git a/keys.h b/keys.h
+new file mode 100644
+index 00000000..e732f806
+--- /dev/null
++++ b/keys.h
+@@ -0,0 +1,242 @@
++/* You can use the macros within this file
++ * instead of search the keycodes yourself
++ * with wev or something like that
++ * Also probably you search this:
++ *    Key_XF86AudioMute
++ *    Key_XF86AudioLowerVolume
++ *    Key_XF86AudioRaiseVolume
++ *    Key_XF86MonBrightnessDown
++ *    Key_XF86MonBrightnessUp
++*/
++
++#define Key_Escape                   9
++#define Key_1                        10
++#define Key_2                        11
++#define Key_3                        12
++#define Key_4                        13
++#define Key_5                        14
++#define Key_6                        15
++#define Key_7                        16
++#define Key_8                        17
++#define Key_9                        18
++#define Key_0                        19
++#define Key_minus                    20
++#define Key_equal                    21
++#define Key_BackSpace                22
++#define Key_Tab                      23
++#define Key_q                        24
++#define Key_w                        25
++#define Key_e                        26
++#define Key_r                        27
++#define Key_t                        28
++#define Key_y                        29
++#define Key_u                        30
++#define Key_i                        31
++#define Key_o                        32
++#define Key_p                        33
++#define Key_bracketleft              34
++#define Key_bracketright             35
++#define Key_Return                   36
++#define Key_Control_L                37
++#define Key_a                        38
++#define Key_s                        39
++#define Key_d                        40
++#define Key_f                        41
++#define Key_g                        42
++#define Key_h                        43
++#define Key_j                        44
++#define Key_k                        45
++#define Key_l                        46
++#define Key_semicolon                47
++#define Key_apostrophe               48
++#define Key_grave                    49
++#define Key_Shift_L                  50
++#define Key_backslash                51
++#define Key_z                        52
++#define Key_x                        53
++#define Key_c                        54
++#define Key_v                        55
++#define Key_b                        56
++#define Key_n                        57
++#define Key_m                        58
++#define Key_comma                    59
++#define Key_period                   60
++#define Key_slash                    61
++#define Key_Shift_R                  62
++#define Key_KP_Multiply              63
++#define Key_Alt_L                    64
++#define Key_space                    65
++#define Key_Caps_Lock                66
++#define Key_F1                       67
++#define Key_F2                       68
++#define Key_F3                       69
++#define Key_F4                       70
++#define Key_F5                       71
++#define Key_F6                       72
++#define Key_F7                       73
++#define Key_F8                       74
++#define Key_F9                       75
++#define Key_F10                      76
++#define Key_Num_Lock                 77
++#define Key_Scroll_Lock              78
++#define Key_KP_Home                  79
++#define Key_KP_7                     Key_KP_Home
++#define Key_KP_Up                    80
++#define Key_KP_8                     Key_KP_Up
++#define Key_KP_Prior                 81
++#define Key_KP_9                     Key_KP_Prior
++#define Key_KP_Subtract              82
++#define Key_KP_Left                  83
++#define Key_KP_4                     Key_KP_Left
++#define Key_KP_Begin                 84
++#define Key_KP_5                     Key_KP_Begin
++#define Key_KP_Right                 85
++#define Key_KP_6                     Key_KP_Right
++#define Key_KP_Add                   86
++#define Key_KP_End                   87
++#define Key_KP_1                     Key_KP_End
++#define Key_KP_Down                  88
++#define Key_KP_2                     Key_KP_Down
++#define Key_KP_Next                  89
++#define Key_KP_3                     Key_KP_Next
++#define Key_KP_Insert                90
++#define Key_KP_0                     Key_KP_Insert
++#define Key_KP_Delete                91
++#define Key_KP_Period                Key_KP_Insert
++#define Key_ISO_Level3_Shift         92
++#define Key_less                     94
++#define Key_F11                      95
++#define Key_F12                      96
++#define Key_Katakana                 98
++#define Key_Hiragana                 99
++#define Key_Henkan_Mode              100
++#define Key_Hiragana_Katakana        101
++#define Key_Muhenkan                 102
++#define Key_KP_Enter                 104
++#define Key_Control_R                105
++#define Key_KP_Divide                106
++#define Key_Print                    107
++#define Key_Alt_R                    108
++#define Key_Linefeed                 109
++#define Key_Home                     110
++#define Key_Up                       111
++#define Key_Prior                    112
++#define Key_Left                     113
++#define Key_Right                    114
++#define Key_End                      115
++#define Key_Down                     116
++#define Key_Next                     117
++#define Key_Insert                   118
++#define Key_Delete                   119
++#define Key_XF86AudioMute            121
++#define Key_XF86AudioLowerVolume     122
++#define Key_XF86AudioRaiseVolume     123
++#define Key_XF86PowerOff             124
++#define Key_KP_Equal                 125
++#define Key_plusminus                126
++#define Key_Pause                    127
++#define Key_XF86LaunchA              128
++#define Key_KP_Decimal               129
++#define Key_Hangul                   130
++#define Key_Hangul_Hanja             131
++#define Key_Super_L                  133
++#define Key_Super_R                  134
++#define Key_Menu                     135
++#define Key_Cancel                   136
++#define Key_Redo                     137
++#define Key_SunProps                 138
++#define Key_Undo                     139
++#define Key_SunFront                 140
++#define Key_XF86Copy                 141
++#define Key_XF86Open                 142
++#define Key_XF86Paste                143
++#define Key_Find                     144
++#define Key_XF86Cut                  145
++#define Key_Help                     146
++#define Key_XF86MenuKB               147
++#define Key_XF86Calculator           148
++#define Key_XF86Sleep                150
++#define Key_XF86WakeUp               151
++#define Key_XF86Explorer             152
++#define Key_XF86Send                 153
++#define Key_XF86Xfer                 155
++#define Key_XF86Launch1              156
++#define Key_XF86Launch2              157
++#define Key_XF86WWW                  158
++#define Key_XF86DOS                  159
++#define Key_XF86ScreenSaver          160
++#define Key_XF86RotateWindows        161
++#define Key_XF86TaskPane             162
++#define Key_XF86Mail                 163
++#define Key_XF86Favorites            164
++#define Key_XF86MyComputer           165
++#define Key_XF86Back                 166
++#define Key_XF86Forward              167
++#define Key_XF86Eject1               169
++#define Key_XF86Eject2               170
++#define Key_XF86AudioNext            171
++#define Key_XF86AudioPlay            172
++#define Key_XF86AudioPrev            173
++#define Key_XF86AudioStop            174
++#define Key_XF86AudioRecord          175
++#define Key_XF86AudioRewind          176
++#define Key_XF86Phone                177
++#define Key_XF86Tools                179
++#define Key_XF86HomePage             180
++#define Key_XF86Reload               181
++#define Key_XF86Close                182
++#define Key_XF86ScrollUp             185
++#define Key_XF86ScrollDown           186
++#define Key_parenleft                187
++#define Key_parenright               188
++#define Key_XF86New                  189
++#define Key_Redo2                    190
++#define Key_XF86Tools2               191
++#define Key_XF86Launch5              192
++#define Key_XF86Launch6              193
++#define Key_XF86Launch7              194
++#define Key_XF86Launch8              195
++#define Key_XF86Launch9              196
++#define Key_XF86AudioMicMute         198
++#define Key_XF86TouchpadToggle       199
++#define Key_XF86TouchpadOn           200
++#define Key_XF86TouchpadOff          201
++#define Key_Mode_switch              203
++#define Key_XF86AudioPlay2           208
++#define Key_XF86AudioPause           209
++#define Key_XF86Launch3              210
++#define Key_XF86Launch4              211
++#define Key_XF86LaunchB              212
++#define Key_XF86Suspend              213
++#define Key_XF86Close2               214
++#define Key_XF86AudioPlay3           215
++#define Key_XF86AudioForward         216
++#define Key_Print2                   218
++#define Key_XF86WebCam               220
++#define Key_XF86AudioPreset          221
++#define Key_XF86Mail2                223
++#define Key_XF86Messenger            224
++#define Key_XF86Search               225
++#define Key_XF86Go                   226
++#define Key_XF86Finance              227
++#define Key_XF86Game                 228
++#define Key_XF86Shop                 229
++#define Key_Cancel2                  231
++#define Key_XF86MonBrightnessDown    232
++#define Key_XF86MonBrightnessUp      233
++#define Key_XF86AudioMedia           234
++#define Key_XF86Display              235
++#define Key_XF86KbdLightOnOff        236
++#define Key_XF86KbdBrightnessDown    237
++#define Key_XF86KbdBrightnessUp      238
++#define Key_XF86Send2                239
++#define Key_XF86Reply                240
++#define Key_XF86MailForward          241
++#define Key_XF86Save                 242
++#define Key_XF86Documents            243
++#define Key_XF86Battery              244
++#define Key_XF86Bluetooth            245
++#define Key_XF86WLAN                 246
++#define Key_XF86MonBrightnessCycle   251
++#define Key_XF86WWAN                 254
++#define Key_XF86RFKill               255

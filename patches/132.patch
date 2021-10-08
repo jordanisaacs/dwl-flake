@@ -1,0 +1,172 @@
+From 0602e9fe48092c31776f12ab76100ca3dc0c49de Mon Sep 17 00:00:00 2001
+From: Sevz17 <leohdz172@outlook.com>
+Date: Sat, 3 Jul 2021 15:48:40 -0500
+Subject: [PATCH 1/5] implement input-inhibitor protocol
+
+---
+ dwl.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/dwl.c b/dwl.c
+index a2a0b69..6a2752a 100644
+--- a/dwl.c
++++ b/dwl.c
+@@ -21,6 +21,7 @@
+ #include <wlr/types/wlr_export_dmabuf_v1.h>
+ #include <wlr/types/wlr_gamma_control_v1.h>
+ #include <wlr/types/wlr_input_device.h>
++#include <wlr/types/wlr_input_inhibitor.h>
+ #include <wlr/types/wlr_idle.h>
+ #include <wlr/types/wlr_layer_shell_v1.h>
+ #include <wlr/types/wlr_keyboard.h>
+@@ -315,6 +316,7 @@ static struct wl_list fstack;  /* focus order */
+ static struct wl_list stack;   /* stacking z-order */
+ static struct wl_list independents;
+ static struct wlr_idle *idle;
++static struct wlr_input_inhibit_manager *inhibit_manager;
+ static struct wlr_layer_shell_v1 *layer_shell;
+ static struct wlr_output_manager_v1 *output_mgr;
+ static struct wlr_virtual_keyboard_manager_v1 *virtual_keyboard_mgr;
+@@ -2056,6 +2058,8 @@ setup(void)
+ 	xdg_shell = wlr_xdg_shell_create(dpy);
+ 	wl_signal_add(&xdg_shell->events.new_surface, &new_xdg_surface);
+ 
++	inhibit_manager = wlr_input_inhibit_manager_create(dpy);
++
+ 	/* Use decoration protocols to negotiate server-side decorations */
+ 	wlr_server_decoration_manager_set_default_mode(
+ 			wlr_server_decoration_manager_create(dpy),
+
+From dc5aea9cec64e4af094b9e11119f3809dbf48690 Mon Sep 17 00:00:00 2001
+From: Sevz17 <leohdz172@outlook.com>
+Date: Sat, 3 Jul 2021 20:33:22 -0500
+Subject: [PATCH 2/5] don't handle keybindings if there is any screen locker
+ active
+
+---
+ dwl.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/dwl.c b/dwl.c
+index 6a2752a..044f0c9 100644
+--- a/dwl.c
++++ b/dwl.c
+@@ -1245,10 +1245,12 @@ keypress(struct wl_listener *listener, void *data)
+ 
+ 	wlr_idle_notify_activity(idle, seat);
+ 
+-	/* On _press_, attempt to process a compositor keybinding. */
+-	if (event->state == WL_KEYBOARD_KEY_STATE_PRESSED)
+-		for (i = 0; i < nsyms; i++)
+-			handled = keybinding(mods, syms[i]) || handled;
++	/* On _press_ if there is no active screen locker,
++	 * attempt to process a compositor keybinding. */
++	if (!inhibit_manager->active_inhibitor)
++		if (event->state == WL_KEYBOARD_KEY_STATE_PRESSED)
++			for (i = 0; i < nsyms; i++)
++				handled = keybinding(mods, syms[i]) || handled;
+ 
+ 	if (!handled) {
+ 		/* Pass unhandled keycodes along to the client. */
+
+From 0c7bde41186d7a369b88bf79ad84ce75f466fb9e Mon Sep 17 00:00:00 2001
+From: Sevz17 <leohdz172@outlook.com>
+Date: Sat, 3 Jul 2021 23:36:59 -0500
+Subject: [PATCH 3/5] rename inhibit_manager to input_inhibit_mgr
+
+this makes the variable name more consistent with the rest of code
+---
+ dwl.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/dwl.c b/dwl.c
+index 044f0c9..4b663cf 100644
+--- a/dwl.c
++++ b/dwl.c
+@@ -316,7 +316,7 @@ static struct wl_list fstack;  /* focus order */
+ static struct wl_list stack;   /* stacking z-order */
+ static struct wl_list independents;
+ static struct wlr_idle *idle;
+-static struct wlr_input_inhibit_manager *inhibit_manager;
++static struct wlr_input_inhibit_manager *input_inhibit_mgr;
+ static struct wlr_layer_shell_v1 *layer_shell;
+ static struct wlr_output_manager_v1 *output_mgr;
+ static struct wlr_virtual_keyboard_manager_v1 *virtual_keyboard_mgr;
+@@ -1247,7 +1247,7 @@ keypress(struct wl_listener *listener, void *data)
+ 
+ 	/* On _press_ if there is no active screen locker,
+ 	 * attempt to process a compositor keybinding. */
+-	if (!inhibit_manager->active_inhibitor)
++	if (!input_inhibit_mgr->active_inhibitor)
+ 		if (event->state == WL_KEYBOARD_KEY_STATE_PRESSED)
+ 			for (i = 0; i < nsyms; i++)
+ 				handled = keybinding(mods, syms[i]) || handled;
+@@ -2060,7 +2060,7 @@ setup(void)
+ 	xdg_shell = wlr_xdg_shell_create(dpy);
+ 	wl_signal_add(&xdg_shell->events.new_surface, &new_xdg_surface);
+ 
+-	inhibit_manager = wlr_input_inhibit_manager_create(dpy);
++	input_inhibit_mgr = wlr_input_inhibit_manager_create(dpy);
+ 
+ 	/* Use decoration protocols to negotiate server-side decorations */
+ 	wlr_server_decoration_manager_set_default_mode(
+
+From a902129b69894d74d3e6b2ebc27f8bbf341934c0 Mon Sep 17 00:00:00 2001
+From: Sevz17 <leohdz172@outlook.com>
+Date: Sun, 11 Jul 2021 15:00:24 -0500
+Subject: [PATCH 4/5] update notes about input-inhibitor protocol
+
+---
+ README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/README.md b/README.md
+index 5b3e4cb..7c613c3 100644
+--- a/README.md
++++ b/README.md
+@@ -16,6 +16,7 @@ dwl is not meant to provide every feature under the sun. Instead, like dwm, it s
+ - Configurable HiDPI/multi-DPI support
+ - Provide information to external status bars via stdout/stdin
+ - Urgency hints via xdg-activate protocol
++- Support screen lockers via input-inhibitor protocol
+ - Various Wayland protocols
+ - XWayland support as provided by wlroots (can be enabled in `config.mk`)
+ - Zero flickering - Wayland users naturally expect that "every frame is perfect"
+@@ -23,7 +24,6 @@ dwl is not meant to provide every feature under the sun. Instead, like dwm, it s
+ Features under consideration (possibly as patches) are:
+ 
+ - Protocols made trivial by wlroots
+-- Implement the input-inhibitor protocol to support screen lockers
+ - Implement the idle-inhibit protocol which lets applications such as mpv disable idle monitoring
+ - Layer shell popups (used by Waybar)
+ - Basic yes/no damage tracking to avoid needless redraws
+
+From 5b5a3a6e62c680409c35b52c8f65149969687e03 Mon Sep 17 00:00:00 2001
+From: Sevz17 <leohdz172@outlook.com>
+Date: Sun, 1 Aug 2021 13:08:26 -0500
+Subject: [PATCH 5/5] join 2 if statements
+
+these can be evaluated in a sigle if
+---
+ dwl.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/dwl.c b/dwl.c
+index 4b663cf..53a5160 100644
+--- a/dwl.c
++++ b/dwl.c
+@@ -1247,10 +1247,10 @@ keypress(struct wl_listener *listener, void *data)
+ 
+ 	/* On _press_ if there is no active screen locker,
+ 	 * attempt to process a compositor keybinding. */
+-	if (!input_inhibit_mgr->active_inhibitor)
+-		if (event->state == WL_KEYBOARD_KEY_STATE_PRESSED)
+-			for (i = 0; i < nsyms; i++)
+-				handled = keybinding(mods, syms[i]) || handled;
++	if (!input_inhibit_mgr->active_inhibitor
++			&& event->state == WL_KEYBOARD_KEY_STATE_PRESSED)
++		for (i = 0; i < nsyms; i++)
++			handled = keybinding(mods, syms[i]) || handled;
+ 
+ 	if (!handled) {
+ 		/* Pass unhandled keycodes along to the client. */
