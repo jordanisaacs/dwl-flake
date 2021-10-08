@@ -1324,10 +1324,17 @@ void
 monocle(Monitor *m)
 {
 	Client *c;
+    static bool found;
 
+    found = false;
 	wl_list_for_each(c, &clients, link) {
 		if (!VISIBLEON(c, m) || c->isfloating || c->isfullscreen)
 			continue;
+        if (speedmonocle && !found && wlr_box_contains_point(&c->geom, cursor->x, cursor->y)) {
+            found = true;
+            wl_list_remove(&c->slink);
+            wl_list_insert(&stack, &c->slink);
+        }
 		resize(c, m->w.x, m->w.y, m->w.width, m->w.height, 0, !smartborders);
 	}
 }
