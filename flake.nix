@@ -63,14 +63,14 @@
                 src = ./.;
 
                 postPatch = ''
-                  substituteInPlace ./config.def.h --replace "@termcmd@" "${cmds.term}"
-                  substituteInPlace ./config.def.h --replace "@menucmd@" "${cmds.menu}"
-                  substituteInPlace ./config.def.h --replace "@audiodowncmd@" "${cmds.audiodown}"
-                  substituteInPlace ./config.def.h --replace "@audioupcmd@" "${cmds.audioup}"
-                  substituteInPlace ./config.def.h --replace "@audiomutcmd@" "${cmds.audiomut}"
-                  substituteInPlace ./config.def.h --replace "@audiofrwcmd@" "${cmds.audiofrw}"
-                  substituteInPlace ./config.def.h --replace "@audioprevcmd@" "${cmds.audioprev}"
-                  substituteInPlace ./config.def.h --replace "@audioplaycmd@" "${cmds.audioplay}"
+                  substituteInPlace ./config.def.h --replace "\"@termcmd@\"" "${cmds.term}"
+                  substituteInPlace ./config.def.h --replace "\"@menucmd@\"" "${cmds.menu}"
+                  substituteInPlace ./config.def.h --replace "\"@audiodowncmd@\"" "${cmds.audiodown}"
+                  substituteInPlace ./config.def.h --replace "\"@audioupcmd@\"" "${cmds.audioup}"
+                  substituteInPlace ./config.def.h --replace "\"@audiomutcmd@\"" "${cmds.audiomut}"
+                  substituteInPlace ./config.def.h --replace "\"@audiofrwcmd@\"" "${cmds.audiofrw}"
+                  substituteInPlace ./config.def.h --replace "\"@audioprevcmd@\"" "${cmds.audioprev}"
+                  substituteInPlace ./config.def.h --replace "\"@audioplaycmd@\"" "${cmds.audioplay}"
                 '';
 
                 installPhase = ''
