@@ -62,8 +62,15 @@ static const int natural_scrolling = 0;
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *termcmd[] = { "alacritty", NULL };
-static const char *menucmd[] = { "bemenu-run", NULL };
+/* commands */
+static const char *termcmd[] = { @termcmd@ };
+static const char *menucmd[] = { @menucmd@ };
+static const char *audiodowncmd[] = { @audiodowncmd@ };
+static const char *audioupcmd[] = { @audioupcmd@ };
+static const char *audiomutcmd[] = { @audiomutcmd@ };
+static const char *audioplaycmd[] = { @audioplaycmd@ };
+static const char *audioforwcmd[] = { @audiofrwcmd@ };
+static const char *audioprevcmd[] = { @audioprevcmd@ };
 
 static const Key keys[] = {
 	/* Note that Shift changes certain key codes: c -> C, 2 -> at, etc. */
