@@ -90,7 +90,7 @@
           };
 
           overlay = (self: super: {
-            inherit dwlBuilder;
+            dwlBuilder = dwlBuilder { inherit pkgs; };
           });
 
           packages.dwl = dwlBuilder { inherit pkgs; } {
