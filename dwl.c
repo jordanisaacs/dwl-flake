@@ -1821,7 +1821,12 @@ run(char *startup_cmd)
 	/* Now that the socket exists, run the startup command */
 	if (startup_cmd) {
 		int piperw[2];
-		pipe(piperw);
+        int pipe_res;
+
+		pipe_res = pipe(piperw);
+
+        if (pipe_res < 0)
+            EBARF("startup: pipe");
 		startup_pid = fork();
 		if (startup_pid < 0)
 			EBARF("startup: fork");

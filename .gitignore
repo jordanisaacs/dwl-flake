@@ -4,3 +4,6 @@ dwl
 *-protocol.h
 .ccls-cache
 config.h
+
+/result
+/compile_commands.json
