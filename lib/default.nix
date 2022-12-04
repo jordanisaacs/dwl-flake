@@ -66,8 +66,7 @@ in
 
     installPhase = ''
       runHook preInstall
-      install -d $out/bin
-      install -m755 dwl $out/bin
+      make install DESTDIR=$out PREFIX=
       runHook postInstall
     '';
 
