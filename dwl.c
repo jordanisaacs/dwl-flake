@@ -1669,13 +1669,30 @@ printstatus(void)
 void
 quit(const Arg *arg)
 {
+    if (((char **)arg->v)[0] != NULL) {
+        pid_t qpid = fork();
+        if (qpid == 0) {
+            dup2(STDERR_FILENO, STDOUT_FILENO);
+            execvp(((char **)arg->v)[0], (char **)arg->v);
+            die("quit: execvp %s failed:", ((char **)arg->v)[0]);
+        } else if (qpid < 0) {
+            die("quit: fork: ");
+        } else {
+            int wstatus;
+            waitpid(qpid, &wstatus, 0);
+            if (wstatus < 0) {
+                die("quit: wait: ");
+            }
+        }
+    }
 	wl_display_terminate(dpy);
 }
 
 void
 quitsignal(int signo)
 {
-	quit(NULL);
+    Arg v = {.v = quitcmd};
+	quit(&v);
 }
 
 void
@@ -2114,12 +2131,14 @@ setup(void)
 void
 spawn(const Arg *arg)
 {
-	if (fork() == 0) {
-		dup2(STDERR_FILENO, STDOUT_FILENO);
-		setsid();
-		execvp(((char **)arg->v)[0], (char **)arg->v);
-		die("dwl: execvp %s failed:", ((char **)arg->v)[0]);
-	}
+    if (arg->v != NULL) {
+        if (fork() == 0) {
+            dup2(STDERR_FILENO, STDOUT_FILENO);
+            setsid();
+            execvp(((char **)arg->v)[0], (char **)arg->v);
+            die("dwl: execvp %s failed:", ((char **)arg->v)[0]);
+        }
+    }
 }
 
 void
