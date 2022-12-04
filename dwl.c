@@ -422,6 +422,7 @@ applyrules(Client *c)
 		title = broken;
 
 	for (r = rules; r < END(rules); r++) {
+        if (!r->title && !r->id) continue;
 		if ((!r->title || strstr(title, r->title))
 				&& (!r->id || strstr(appid, r->id))) {
 			c->isfloating = r->isfloating;
