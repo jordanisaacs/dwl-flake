@@ -25,7 +25,13 @@
       if cmd == []
       then "0"
       else (concatStringsSep " " (map (x: ''\"'' + x + ''\",'') cmd)) + " NULL";
+  boolToC = bool:
+    if bool
+    then "1"
+    else "0";
+
   cmds = builtins.mapAttrs (name: value: (cmdToC value)) options.config.cmds;
+  nscroll = boolToC options.config.input.natscroll;
 in
   stdenv.mkDerivation {
     pname = "dwl";
@@ -48,7 +54,10 @@ in
       xcbutilwm
     ];
 
-    patches = [../patches/module.patch];
+    patches = [
+      ../patches/module.patch
+      ../patches/module_naturalscroll.patch
+    ];
 
     postPatch = ''
       substituteInPlace ./config.def.h --replace "@termcmd@" "${cmds.term}"
@@ -60,6 +69,8 @@ in
       substituteInPlace ./config.def.h --replace "@audioprevcmd@" "${cmds.audioprev}"
       substituteInPlace ./config.def.h --replace "@audiodowncmd@" "${cmds.audiodown}"
       substituteInPlace ./config.def.h --replace "@audioplaycmd@" "${cmds.audioplay}"
+      substituteInPlace ./config.def.h --replace "@audioplaycmd@" "${cmds.audioplay}"
+      substituteInPlace ./config.def.h --replace "@naturalscroll@" "${nscroll}"
     '';
 
     dontConfigure = true;
