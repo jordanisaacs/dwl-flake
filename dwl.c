@@ -415,9 +415,9 @@ applybounds(Client *c, struct wlr_box *bbox)
 		c->geom.x = bbox->x + bbox->width - c->geom.width;
 	if (c->geom.y >= bbox->y + bbox->height)
 		c->geom.y = bbox->y + bbox->height - c->geom.height;
-	if (c->geom.x + c->geom.width + 2 * c->bw <= bbox->x)
+	if (c->geom.x + c->geom.width + 2 * (int)c->bw <= bbox->x)
 		c->geom.x = bbox->x;
-	if (c->geom.y + c->geom.height + 2 * c->bw <= bbox->y)
+	if (c->geom.y + c->geom.height + 2 * (int)c->bw <= bbox->y)
 		c->geom.y = bbox->y;
 }
 
@@ -426,7 +426,8 @@ applyrules(Client *c)
 {
 	/* rule matching */
 	const char *appid, *title;
-	uint32_t i, newtags = 0;
+	uint32_t newtags = 0;
+	int i;
 	const Rule *r;
 	Monitor *mon = selmon, *m;
 
@@ -520,7 +521,7 @@ arrangelayers(Monitor *m)
 		arrangelayer(m, &m->layers[i], &usable_area, 0);
 
 	/* Find topmost keyboard interactive layer, if such a layer exists */
-	for (i = 0; i < LENGTH(layers_above_shell); i++) {
+	for (i = 0; i < (int)LENGTH(layers_above_shell); i++) {
 		wl_list_for_each_reverse(l, &m->layers[layers_above_shell[i]], link) {
 			if (locked || !l->layer_surface->current.keyboard_interactive || !l->mapped)
 				continue;
@@ -657,7 +658,7 @@ cleanupmon(struct wl_listener *listener, void *data)
 {
 	Monitor *m = wl_container_of(listener, m, destroy);
 	LayerSurface *l, *tmp;
-	int i;
+	size_t i;
 
 	/* m->layers[i] are intentionally not unlinked */
 	for (i = 0; i < LENGTH(m->layers); i++) {
@@ -2166,7 +2167,7 @@ setup(void)
 	struct sigaction sa = {.sa_flags = SA_RESTART, .sa_handler = handlesig};
 	sigemptyset(&sa.sa_mask);
 
-	for (i = 0; i < LENGTH(sig); i++)
+	for (i = 0; i < (int)LENGTH(sig); i++)
 		sigaction(sig[i], &sa, NULL);
 
 	wlr_log_init(log_level, NULL);
@@ -2454,7 +2455,8 @@ tagmon(const Arg *arg)
 void
 tile(Monitor *m)
 {
-	unsigned int i, n = 0, mw, my, ty;
+	unsigned int mw, my, ty;
+	int i, n = 0;
 	Client *c;
 
 	wl_list_for_each(c, &clients, link)
