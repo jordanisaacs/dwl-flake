@@ -65,6 +65,7 @@
 /* macros */
 #define MAX(A, B)               ((A) > (B) ? (A) : (B))
 #define MIN(A, B)               ((A) < (B) ? (A) : (B))
+#define ROUND(X)                ((int)((X < 0) ? (X - 0.5) : (X + 0.5)))
 #define CLEANMASK(mask)         (mask & ~WLR_MODIFIER_CAPS)
 #define VISIBLEON(C, M)         ((M) && (C)->mon == (M) && ((C)->tags & (M)->tagset[(M)->seltags]))
 #define LENGTH(X)               (sizeof X / sizeof X[0])
@@ -196,7 +197,7 @@ struct Monitor {
 	unsigned int seltags;
 	unsigned int sellt;
 	uint32_t tagset[2];
-	double mfact;
+	float mfact;
 	int gamma_lut_changed;
 	int nmaster;
 	char ltsymbol[16];
@@ -1621,17 +1622,17 @@ motionnotify(uint32_t time)
 	}
 
 	/* Update drag icon's position */
-	wlr_scene_node_set_position(&drag_icon->node, cursor->x, cursor->y);
+	wlr_scene_node_set_position(&drag_icon->node, ROUND(cursor->x), ROUND(cursor->y));
 
 	/* If we are currently grabbing the mouse, handle and return */
 	if (cursor_mode == CurMove) {
 		/* Move the grabbed client to the new position. */
-		resize(grabc, (struct wlr_box){.x = cursor->x - grabcx, .y = cursor->y - grabcy,
+		resize(grabc, (struct wlr_box){.x = ROUND(cursor->x) - grabcx, .y = ROUND(cursor->y) - grabcy,
 			.width = grabc->geom.width, .height = grabc->geom.height}, 1);
 		return;
 	} else if (cursor_mode == CurResize) {
 		resize(grabc, (struct wlr_box){.x = grabc->geom.x, .y = grabc->geom.y,
-			.width = cursor->x - grabc->geom.x, .height = cursor->y - grabc->geom.y}, 1);
+			.width = ROUND(cursor->x) - grabc->geom.x, .height = ROUND(cursor->y) - grabc->geom.y}, 1);
 		return;
 	}
 
@@ -1683,8 +1684,8 @@ moveresize(const Arg *arg)
 	setfloating(grabc, 1);
 	switch (cursor_mode = arg->ui) {
 	case CurMove:
-		grabcx = cursor->x - grabc->geom.x;
-		grabcy = cursor->y - grabc->geom.y;
+		grabcx = ROUND(cursor->x) - grabc->geom.x;
+		grabcy = ROUND(cursor->y) - grabc->geom.y;
 		wlr_cursor_set_xcursor(cursor, cursor_mgr, "fleur");
 		break;
 	case CurResize:
@@ -2105,7 +2106,7 @@ setmfact(const Arg *arg)
 
 	if (!arg || !selmon || !selmon->lt[selmon->sellt]->arrange)
 		return;
-	f = arg->f < 1.0 ? arg->f + selmon->mfact : arg->f - 1.0;
+	f = arg->f < 1.0f ? arg->f + selmon->mfact : arg->f - 1.0f;
 	if (f < 0.1 || f > 0.9)
 		return;
 	selmon->mfact = f;
@@ -2277,7 +2278,7 @@ setup(void)
 	wl_signal_add(&session_lock_mgr->events.new_lock, &lock_listener);
 	LISTEN_STATIC(&session_lock_mgr->events.destroy, destroysessionmgr);
 	locked_bg = wlr_scene_rect_create(layers[LyrBlock], sgeom.width, sgeom.height,
-			(float [4]){0.1, 0.1, 0.1, 1.0});
+			(float [4]){0.1f, 0.1f, 0.1f, 1.0f});
 	wlr_scene_node_set_enabled(&locked_bg->node, 0);
 
 	/* Use decoration protocols to negotiate server-side decorations */
@@ -2466,7 +2467,7 @@ tile(Monitor *m)
 		return;
 
 	if (n > m->nmaster)
-		mw = m->nmaster ? m->w.width * m->mfact : 0;
+		mw = m->nmaster ? ROUND(m->w.width * m->mfact) : 0;
 	else
 		mw = m->w.width;
 	i = my = ty = 0;
