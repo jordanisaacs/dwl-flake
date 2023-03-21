@@ -55,6 +55,7 @@ in
     ];
 
     patches = [
+			../patches/fullscreen-rule.patch
       ../patches/module.patch
       ../patches/module_naturalscroll.patch
     ];
