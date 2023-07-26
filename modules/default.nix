@@ -12,6 +12,13 @@ with lib; {
         description = "enable natural scrolling";
       };
     };
+    visual = {
+      cursorSize = mkOption {
+        type = types.int;
+        default = 24;
+        description = "xcursor_size";
+      };
+    };
     cmds = {
       term = mkOption {
         type = with types; listOf string;

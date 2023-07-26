@@ -32,6 +32,7 @@
 
   cmds = builtins.mapAttrs (name: value: (cmdToC value)) options.config.cmds;
   nscroll = boolToC options.config.input.natscroll;
+  cursorsize = builtins.toString options.config.visual.cursorSize;
 in
   stdenv.mkDerivation {
     pname = "dwl";
@@ -55,9 +56,10 @@ in
     ];
 
     patches = [
-			../patches/fullscreen-rule.patch
+      ../patches/fullscreen-rule.patch
       ../patches/module.patch
       ../patches/module_naturalscroll.patch
+      ../patches/module_cursor.patch
     ];
 
     postPatch = ''
@@ -72,6 +74,7 @@ in
       substituteInPlace ./config.def.h --replace "@audioplaycmd@" "${cmds.audioplay}"
       substituteInPlace ./config.def.h --replace "@audioplaycmd@" "${cmds.audioplay}"
       substituteInPlace ./config.def.h --replace "@naturalscroll@" "${nscroll}"
+      substituteInPlace ./dwl.c --replace "@cursorsize@" "${cursorsize}"
     '';
 
     dontConfigure = true;
