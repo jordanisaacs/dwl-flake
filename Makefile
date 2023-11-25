@@ -42,7 +42,7 @@ clean:
 
 dist: clean
 	mkdir -p dwl-$(VERSION)
-	cp -R LICENSE* Makefile README.md client.h config.def.h\
+	cp -R LICENSE* Makefile CHANGELOG.md README.md client.h config.def.h\
 		config.mk protocols dwl.1 dwl.c util.c util.h dwl.desktop\
 		dwl-$(VERSION)
 	tar -caf dwl-$(VERSION).tar.gz dwl-$(VERSION)
