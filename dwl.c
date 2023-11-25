@@ -815,7 +815,7 @@ createlayersurface(struct wl_listener *listener, void *data)
 		return;
 	}
 
-	layersurface = wlr_layer_surface->data = ecalloc(1, sizeof(LayerSurface));
+	layersurface = wlr_layer_surface->data = ecalloc(1, sizeof(*layersurface));
 	layersurface->type = LayerShell;
 	LISTEN(&wlr_layer_surface->surface->events.commit,
 			&layersurface->surface_commit, commitlayersurfacenotify);
