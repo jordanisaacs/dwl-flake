@@ -833,6 +833,7 @@ createlayersurface(struct wl_listener *listener, void *data)
 
 	wl_list_insert(&layersurface->mon->layers[wlr_layer_surface->pending.layer],
 			&layersurface->link);
+	wlr_surface_send_enter(wlr_layer_surface->surface, wlr_layer_surface->output);
 
 	/* Temporarily set the layer's current state to pending
 	 * so that we can easily arrange it
