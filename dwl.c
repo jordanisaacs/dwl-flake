@@ -1067,6 +1067,7 @@ destroylayersurfacenotify(struct wl_listener *listener, void *data)
 	wl_list_remove(&layersurface->unmap.link);
 	wl_list_remove(&layersurface->surface_commit.link);
 	wlr_scene_node_destroy(&layersurface->scene->node);
+	wlr_scene_node_destroy(&layersurface->popups->node);
 	free(layersurface);
 }
 
