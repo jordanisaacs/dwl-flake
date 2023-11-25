@@ -712,6 +712,11 @@ commitlayersurfacenotify(struct wl_listener *listener, void *data)
 	struct wlr_layer_surface_v1 *wlr_layer_surface = layersurface->layer_surface;
 	struct wlr_scene_tree *layer = layers[layermap[wlr_layer_surface->current.layer]];
 
+	if (wlr_layer_surface->current.committed == 0
+			&& layersurface->mapped == wlr_layer_surface->surface->mapped)
+		return;
+	layersurface->mapped = wlr_layer_surface->surface->mapped;
+
 	if (layer != layersurface->scene->node.parent) {
 		wlr_scene_node_reparent(&layersurface->scene->node, layer);
 		wl_list_remove(&layersurface->link);
@@ -720,11 +725,6 @@ commitlayersurfacenotify(struct wl_listener *listener, void *data)
 		wlr_scene_node_reparent(&layersurface->popups->node, (wlr_layer_surface->current.layer
 				< ZWLR_LAYER_SHELL_V1_LAYER_TOP ? layers[LyrTop] : layer));
 	}
-
-	if (wlr_layer_surface->current.committed == 0
-			&& layersurface->mapped == wlr_layer_surface->surface->mapped)
-		return;
-	layersurface->mapped = wlr_layer_surface->surface->mapped;
 
 	arrangelayers(layersurface->mon);
 }
