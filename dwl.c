@@ -720,13 +720,12 @@ commitlayersurfacenotify(struct wl_listener *listener, void *data)
 
 	if (layer != layersurface->scene->node.parent) {
 		wlr_scene_node_reparent(&layersurface->scene->node, layer);
-		wlr_scene_node_reparent(&layersurface->popups->node, layer);
 		wl_list_remove(&layersurface->link);
 		wl_list_insert(&layersurface->mon->layers[wlr_layer_surface->current.layer],
 				&layersurface->link);
+		wlr_scene_node_reparent(&layersurface->popups->node, (wlr_layer_surface->current.layer
+				< ZWLR_LAYER_SHELL_V1_LAYER_TOP ? layers[LyrTop] : layer));
 	}
-	if (wlr_layer_surface->current.layer < ZWLR_LAYER_SHELL_V1_LAYER_TOP)
-		wlr_scene_node_reparent(&layersurface->popups->node, layers[LyrTop]);
 
 	if (wlr_layer_surface->current.committed == 0
 			&& layersurface->mapped == wlr_layer_surface->surface->mapped)
