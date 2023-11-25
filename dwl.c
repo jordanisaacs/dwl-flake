@@ -710,13 +710,7 @@ commitlayersurfacenotify(struct wl_listener *listener, void *data)
 {
 	LayerSurface *layersurface = wl_container_of(listener, layersurface, surface_commit);
 	struct wlr_layer_surface_v1 *wlr_layer_surface = layersurface->layer_surface;
-	struct wlr_output *wlr_output = wlr_layer_surface->output;
 	struct wlr_scene_tree *layer = layers[layermap[wlr_layer_surface->current.layer]];
-
-	/* For some reason this layersurface have no monitor, this can be because
-	 * its monitor has just been destroyed */
-	if (!wlr_output || !(layersurface->mon = wlr_output->data))
-		return;
 
 	if (layer != layersurface->scene->node.parent) {
 		wlr_scene_node_reparent(&layersurface->scene->node, layer);
