@@ -1,14 +1,23 @@
+/* Taken from https://github.com/djpohly/dwl/issues/466 */
+#define COLOR(hex)    { ((hex >> 24) & 0xFF) / 255.0f, \
+                        ((hex >> 16) & 0xFF) / 255.0f, \
+                        ((hex >> 8) & 0xFF) / 255.0f, \
+                        (hex & 0xFF) / 255.0f }
 /* appearance */
 static const int sloppyfocus               = 1;  /* focus follows mouse */
 static const int bypass_surface_visibility = 0;  /* 1 means idle inhibitors will disable idle tracking even if it's surface isn't visible  */
 static const unsigned int borderpx         = 1;  /* border pixel of windows */
-static const float bordercolor[]           = {0.5, 0.5, 0.5, 1.0};
-static const float focuscolor[]            = {1.0, 0.0, 0.0, 1.0};
+static const float bordercolor[]           = COLOR(0x444444ff);
+static const float focuscolor[]            = COLOR(0x005577ff);
+static const float urgentcolor[]           = COLOR(0xff0000ff);
 /* To conform the xdg-protocol, set the alpha to zero to restore the old behavior */
-static const float fullscreen_bg[]         = {0.1, 0.1, 0.1, 1.0};
+static const float fullscreen_bg[]         = {0.1, 0.1, 0.1, 1.0}; /* You can also use glsl colors */
 
-/* tagging - tagcount must be no greater than 31 */
-static const int tagcount = 9;
+/* tagging - TAGCOUNT must be no greater than 31 */
+#define TAGCOUNT (9)
+
+/* logging */
+static int log_level = WLR_ERROR;
 
 static const Rule rules[] = {
 	/* app_id     title       tags mask     isfloating   monitor */
@@ -146,6 +155,9 @@ static const Key keys[] = {
 
 	/* Ctrl-Alt-Backspace and Ctrl-Alt-Fx used to be handled by X server */
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_Terminate_Server, quit, {.v = quitcmd} },
+	/* Ctrl-Alt-Fx is used to switch to another VT, if you don't know what a VT is
+	 * do not remove them.
+	 */
 #define CHVT(n) { WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_XF86Switch_VT_##n, chvt, {.ui = (n)} }
 	CHVT(1), CHVT(2), CHVT(3), CHVT(4), CHVT(5), CHVT(6),
 	CHVT(7), CHVT(8), CHVT(9), CHVT(10), CHVT(11), CHVT(12),
