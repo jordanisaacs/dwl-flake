@@ -214,6 +214,7 @@ typedef struct {
 	const char *title;
 	uint32_t tags;
 	int isfloating;
+	int isfullscreen;
 	int monitor;
 } Rule;
 
@@ -434,6 +435,7 @@ applyrules(Client *c)
 		if ((!r->title || strstr(title, r->title))
 				&& (!r->id || strstr(appid, r->id))) {
 			c->isfloating = r->isfloating;
+			c->isfullscreen = r->isfullscreen;
 			newtags |= r->tags;
 			i = 0;
 			wl_list_for_each(m, &mons, link)
@@ -441,7 +443,8 @@ applyrules(Client *c)
 					mon = m;
 		}
 	}
-	wlr_scene_node_reparent(&c->scene->node, layers[c->isfloating ? LyrFloat : LyrTile]);
+	wlr_scene_node_reparent(&c->scene->node, layers[c->isfullscreen
+			? LyrFS : c->isfloating ? LyrFloat : LyrTile]);
 	setmon(c, mon, newtags);
 }
 
