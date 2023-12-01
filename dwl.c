@@ -858,22 +858,25 @@ createmon(struct wl_listener *listener, void *data)
 	struct wlr_output *wlr_output = data;
 	const MonitorRule *r;
 	size_t i;
+	struct wlr_output_state state;
 	Monitor *m = wlr_output->data = ecalloc(1, sizeof(*m));
 	m->wlr_output = wlr_output;
 
 	wlr_output_init_render(wlr_output, alloc, drw);
 
-	/* Initialize monitor state using configured rules */
 	for (i = 0; i < LENGTH(m->layers); i++)
 		wl_list_init(&m->layers[i]);
+
+	wlr_output_state_init(&state);
+	/* Initialize monitor state using configured rules */
 	m->tagset[0] = m->tagset[1] = 1;
 	for (r = monrules; r < END(monrules); r++) {
 		if (!r->name || strstr(wlr_output->name, r->name)) {
 			m->mfact = r->mfact;
 			m->nmaster = r->nmaster;
-			wlr_output_set_scale(wlr_output, r->scale);
+			wlr_output_state_set_scale(&state, r->scale);
 			m->lt[0] = m->lt[1] = r->lt;
-			wlr_output_set_transform(wlr_output, r->rr);
+			wlr_output_state_set_transform(&state, r->rr);
 			m->m.x = r->x;
 			m->m.y = r->y;
 			break;
@@ -884,16 +887,19 @@ createmon(struct wl_listener *listener, void *data)
 	 * monitor supports only a specific set of modes. We just pick the
 	 * monitor's preferred mode; a more sophisticated compositor would let
 	 * the user configure it. */
-	wlr_output_set_mode(wlr_output, wlr_output_preferred_mode(wlr_output));
+	wlr_output_state_set_mode(&state, wlr_output_preferred_mode(wlr_output));
 
 	/* Set up event listeners */
 	LISTEN(&wlr_output->events.frame, &m->frame, rendermon);
 	LISTEN(&wlr_output->events.destroy, &m->destroy, cleanupmon);
 	LISTEN(&wlr_output->events.request_state, &m->request_state, requestmonstate);
 
-	wlr_output_enable(wlr_output, 1);
-	if (!wlr_output_commit(wlr_output))
+	wlr_output_state_set_enabled(&state, 1);
+	if (!wlr_output_commit_state(wlr_output, &state)) {
+		wlr_output_state_finish(&state);
 		return;
+	}
+	wlr_output_state_finish(&state);
 
 	wl_list_insert(&mons, &m->link);
 	printstatus();
