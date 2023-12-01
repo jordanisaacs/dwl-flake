@@ -36,6 +36,7 @@ static const Layout layouts[] = {
 };
 
 /* monitors */
+/* NOTE: ALWAYS add a fallback rule, even if you are completely sure it won't be used */
 static const MonitorRule monrules[] = {
 	/* name       mfact nmaster scale layout       rotate/reflect                x    y */
 	/* example of a HiDPI laptop monitor:
