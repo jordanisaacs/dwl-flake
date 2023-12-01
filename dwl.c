@@ -898,10 +898,7 @@ createmon(struct wl_listener *listener, void *data)
 	LISTEN(&wlr_output->events.request_state, &m->request_state, requestmonstate);
 
 	wlr_output_state_set_enabled(&state, 1);
-	if (!wlr_output_commit_state(wlr_output, &state)) {
-		wlr_output_state_finish(&state);
-		return;
-	}
+	wlr_output_commit_state(wlr_output, &state);
 	wlr_output_state_finish(&state);
 
 	wl_list_insert(&mons, &m->link);
