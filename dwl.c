@@ -859,10 +859,13 @@ createmon(struct wl_listener *listener, void *data)
 	const MonitorRule *r;
 	size_t i;
 	struct wlr_output_state state;
-	Monitor *m = wlr_output->data = ecalloc(1, sizeof(*m));
-	m->wlr_output = wlr_output;
+	Monitor *m;
 
-	wlr_output_init_render(wlr_output, alloc, drw);
+	if (!wlr_output_init_render(wlr_output, alloc, drw))
+		return;
+
+	m = wlr_output->data = ecalloc(1, sizeof(*m));
+	m->wlr_output = wlr_output;
 
 	for (i = 0; i < LENGTH(m->layers); i++)
 		wl_list_init(&m->layers[i]);
