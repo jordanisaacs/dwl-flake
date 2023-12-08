@@ -1528,7 +1528,8 @@ mapnotify(struct wl_listener *listener, void *data)
 	}
 
 	for (i = 0; i < 4; i++) {
-		c->border[i] = wlr_scene_rect_create(c->scene, 0, 0, bordercolor);
+		c->border[i] = wlr_scene_rect_create(c->scene, 0, 0,
+				c->isurgent ? urgentcolor : bordercolor);
 		c->border[i]->node.data = c;
 	}
 
