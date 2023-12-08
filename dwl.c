@@ -982,8 +982,7 @@ void
 createpointer(struct wlr_pointer *pointer)
 {
 	if (wlr_input_device_is_libinput(&pointer->base)) {
-		struct libinput_device *libinput_device = (struct libinput_device*)
-			wlr_libinput_get_device_handle(&pointer->base);
+		struct libinput_device *libinput_device = wlr_libinput_get_device_handle(&pointer->base);
 
 		if (libinput_device_config_tap_get_finger_count(libinput_device)) {
 			libinput_device_config_tap_set_enabled(libinput_device, tap_to_click);
