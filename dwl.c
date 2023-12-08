@@ -188,7 +188,7 @@ struct Monitor {
 	struct wlr_session_lock_surface_v1 *lock_surface;
 	struct wlr_box m; /* monitor area, layout-relative */
 	struct wlr_box w; /* window area, layout-relative */
-	struct wl_list layers[4]; /* LayerSurface::link */
+	struct wl_list layers[4]; /* LayerSurface.link */
 	const Layout *lt[2];
 	unsigned int seltags;
 	unsigned int sellt;
