@@ -2554,8 +2554,7 @@ updatemons(struct wl_listener *listener, void *data)
 		/* Remove this output from the layout to avoid cursor enter inside it */
 		wlr_output_layout_remove(output_layout, m->wlr_output);
 		closemon(m);
-		memset(&m->m, 0, sizeof(m->m));
-		memset(&m->w, 0, sizeof(m->w));
+		m->m = m->w = (struct wlr_box){0};
 	}
 	/* Insert outputs that need to */
 	wl_list_for_each(m, &mons, link)
