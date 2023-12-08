@@ -2596,6 +2596,8 @@ updatemons(struct wl_listener *listener, void *data)
 		if ((c = focustop(m)) && c->isfullscreen)
 			resize(c, m->m, 0);
 
+		/* Try to re-set the gamma LUT when updating monitors,
+		 * it's only really needed when enabling a disabled output, but meh. */
 		m->gamma_lut_changed = 1;
 		config_head->state.enabled = 1;
 		config_head->state.mode = m->wlr_output->current_mode;
