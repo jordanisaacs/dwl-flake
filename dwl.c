@@ -264,12 +264,14 @@ static void destroylocksurface(struct wl_listener *listener, void *data);
 static void destroynotify(struct wl_listener *listener, void *data);
 static void destroysessionlock(struct wl_listener *listener, void *data);
 static void destroysessionmgr(struct wl_listener *listener, void *data);
+static void destroyxdeco(struct wl_listener *listener, void *data);
 static Monitor *dirtomon(enum wlr_direction dir);
 static void focusclient(Client *c, int lift);
 static void focusmon(const Arg *arg);
 static void focusstack(const Arg *arg);
 static Client *focustop(Monitor *m);
 static void fullscreennotify(struct wl_listener *listener, void *data);
+static void getxdecomode(struct wl_listener *listener, void *data);
 static void handlesig(int signo);
 static void incnmaster(const Arg *arg);
 static void inputdevice(struct wl_listener *listener, void *data);
@@ -741,8 +743,13 @@ commitnotify(struct wl_listener *listener, void *data)
 void
 createdecoration(struct wl_listener *listener, void *data)
 {
-	struct wlr_xdg_toplevel_decoration_v1 *dec = data;
-	wlr_xdg_toplevel_decoration_v1_set_mode(dec, WLR_XDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
+	struct wlr_xdg_toplevel_decoration_v1 *wlr_deco = data;
+	Decoration *d = wlr_deco->data = calloc(1, sizeof(*d));
+
+	LISTEN(&wlr_deco->events.request_mode, &d->request_mode, getxdecomode);
+	LISTEN(&wlr_deco->events.destroy, &d->destroy, destroyxdeco);
+
+	getxdecomode(&d->request_mode, wlr_deco);
 }
 
 void
@@ -1124,6 +1131,17 @@ destroysessionmgr(struct wl_listener *listener, void *data)
 	wl_list_remove(&listener->link);
 }
 
+void
+destroyxdeco(struct wl_listener *listener, void *data)
+{
+	struct wlr_xdg_toplevel_decoration_v1 *wlr_deco = data;
+	Decoration *d = wlr_deco->data;
+
+	wl_list_remove(&d->destroy.link);
+	wl_list_remove(&d->request_mode.link);
+	free(d);
+}
+
 Monitor *
 dirtomon(enum wlr_direction dir)
 {
@@ -1272,6 +1290,14 @@ fullscreennotify(struct wl_listener *listener, void *data)
 {
 	Client *c = wl_container_of(listener, c, fullscreen);
 	setfullscreen(c, client_wants_fullscreen(c));
+}
+
+void
+getxdecomode(struct wl_listener *listener, void *data)
+{
+	struct wlr_xdg_toplevel_decoration_v1 *wlr_deco = data;
+	wlr_xdg_toplevel_decoration_v1_set_mode(wlr_deco,
+			WLR_XDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
 }
 
 void
