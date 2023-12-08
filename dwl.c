@@ -967,15 +967,15 @@ createnotify(struct wl_listener *listener, void *data)
 	wlr_xdg_toplevel_set_wm_capabilities(xdg_surface->toplevel,
 			WLR_XDG_TOPLEVEL_WM_CAPABILITIES_FULLSCREEN);
 
+	LISTEN(&xdg_surface->events.destroy, &c->destroy, destroynotify);
 	LISTEN(&xdg_surface->surface->events.commit, &c->commit, commitnotify);
 	LISTEN(&xdg_surface->surface->events.map, &c->map, mapnotify);
 	LISTEN(&xdg_surface->surface->events.unmap, &c->unmap, unmapnotify);
-	LISTEN(&xdg_surface->events.destroy, &c->destroy, destroynotify);
-	LISTEN(&xdg_surface->toplevel->events.set_title, &c->set_title, updatetitle);
 	LISTEN(&xdg_surface->toplevel->events.request_fullscreen, &c->fullscreen,
 			fullscreennotify);
 	LISTEN(&xdg_surface->toplevel->events.request_maximize, &c->maximize,
 			maximizenotify);
+	LISTEN(&xdg_surface->toplevel->events.set_title, &c->set_title, updatetitle);
 }
 
 void
@@ -2787,13 +2787,13 @@ createnotifyx11(struct wl_listener *listener, void *data)
 
 	/* Listen to the various events it can emit */
 	LISTEN(&xsurface->events.associate, &c->associate, associatex11);
+	LISTEN(&xsurface->events.destroy, &c->destroy, destroynotify);
 	LISTEN(&xsurface->events.dissociate, &c->dissociate, dissociatex11);
 	LISTEN(&xsurface->events.request_activate, &c->activate, activatex11);
 	LISTEN(&xsurface->events.request_configure, &c->configure, configurex11);
+	LISTEN(&xsurface->events.request_fullscreen, &c->fullscreen, fullscreennotify);
 	LISTEN(&xsurface->events.set_hints, &c->set_hints, sethints);
 	LISTEN(&xsurface->events.set_title, &c->set_title, updatetitle);
-	LISTEN(&xsurface->events.destroy, &c->destroy, destroynotify);
-	LISTEN(&xsurface->events.request_fullscreen, &c->fullscreen, fullscreennotify);
 }
 
 void
