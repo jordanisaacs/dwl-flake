@@ -1512,9 +1512,10 @@ mapnotify(struct wl_listener *listener, void *data)
 			: wlr_scene_subsurface_tree_create(c->scene, client_surface(c));
 	c->scene->node.data = c->scene_surface->node.data = c;
 
+	client_get_geometry(c, &c->geom);
+
 	/* Handle unmanaged clients first so we can return prior create borders */
 	if (client_is_unmanaged(c)) {
-		client_get_geometry(c, &c->geom);
 		/* Unmanaged clients always are floating */
 		wlr_scene_node_reparent(&c->scene->node, layers[LyrFloat]);
 		wlr_scene_node_set_position(&c->scene->node, c->geom.x + borderpx,
@@ -1533,7 +1534,6 @@ mapnotify(struct wl_listener *listener, void *data)
 
 	/* Initialize client geometry with room for border */
 	client_set_tiled(c, WLR_EDGE_TOP | WLR_EDGE_BOTTOM | WLR_EDGE_LEFT | WLR_EDGE_RIGHT);
-	client_get_geometry(c, &c->geom);
 	c->geom.width += 2 * c->bw;
 	c->geom.height += 2 * c->bw;
 
