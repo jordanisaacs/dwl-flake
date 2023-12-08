@@ -875,13 +875,14 @@ createmon(struct wl_listener *listener, void *data)
 	m->tagset[0] = m->tagset[1] = 1;
 	for (r = monrules; r < END(monrules); r++) {
 		if (!r->name || strstr(wlr_output->name, r->name)) {
-			m->mfact = r->mfact;
-			m->nmaster = r->nmaster;
-			wlr_output_state_set_scale(&state, r->scale);
-			m->lt[0] = m->lt[1] = r->lt;
-			wlr_output_state_set_transform(&state, r->rr);
 			m->m.x = r->x;
 			m->m.y = r->y;
+			m->mfact = r->mfact;
+			m->nmaster = r->nmaster;
+			m->lt[0] = m->lt[1] = r->lt;
+			strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, LENGTH(m->ltsymbol));
+			wlr_output_state_set_scale(&state, r->scale);
+			wlr_output_state_set_transform(&state, r->rr);
 			break;
 		}
 	}
@@ -927,7 +928,6 @@ createmon(struct wl_listener *listener, void *data)
 		wlr_output_layout_add_auto(output_layout, wlr_output);
 	else
 		wlr_output_layout_add(output_layout, wlr_output, m->m.x, m->m.y);
-	strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, LENGTH(m->ltsymbol));
 }
 
 void
