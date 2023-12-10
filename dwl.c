@@ -368,6 +368,7 @@ static struct wl_listener lock_listener = {.notify = locksession};
 
 static struct wlr_seat *seat;
 static struct wl_list keyboards;
+static struct wlr_surface *held_grab;
 static unsigned int cursor_mode;
 static Client *grabc;
 static int grabcx, grabcy; /* client-relative */
@@ -555,6 +556,7 @@ buttonpress(struct wl_listener *listener, void *data)
 	switch (event->state) {
 	case WLR_BUTTON_PRESSED:
 		cursor_mode = CurPressed;
+		held_grab = seat->pointer_state.focused_surface;
 		if (locked)
 			break;
 
@@ -574,6 +576,7 @@ buttonpress(struct wl_listener *listener, void *data)
 		}
 		break;
 	case WLR_BUTTON_RELEASED:
+		held_grab = NULL;
 		/* If you released any buttons, we exit interactive move/resize mode. */
 		/* TODO should reset to the pointer focus's current setcursor */
 		if (!locked && cursor_mode != CurNormal && cursor_mode != CurPressed) {
@@ -1616,7 +1619,6 @@ motionnotify(uint32_t time)
 	double sx = 0, sy = 0;
 	Client *c = NULL, *w = NULL;
 	LayerSurface *l = NULL;
-	int type;
 	struct wlr_surface *surface = NULL;
 
 	/* time is 0 in internal calls meant to restore pointer focus. */
@@ -1646,14 +1648,12 @@ motionnotify(uint32_t time)
 	/* Find the client under the pointer and send the event along. */
 	xytonode(cursor->x, cursor->y, &surface, &c, NULL, &sx, &sy);
 
-	if (cursor_mode == CurPressed && !seat->drag) {
-		if ((type = toplevel_from_wlr_surface(
-				 seat->pointer_state.focused_surface, &w, &l)) >= 0) {
-			c = w;
-			surface = seat->pointer_state.focused_surface;
-			sx = cursor->x - (type == LayerShell ? l->geom.x : w->geom.x);
-			sy = cursor->y - (type == LayerShell ? l->geom.y : w->geom.y);
-		}
+	if (cursor_mode == CurPressed && !seat->drag && surface != held_grab
+			&& toplevel_from_wlr_surface(held_grab, &w, &l) >= 0) {
+		c = w;
+		surface = held_grab;
+		sx = cursor->x - (l ? l->geom.x : w->geom.x);
+		sy = cursor->y - (l ? l->geom.y : w->geom.y);
 	}
 
 	/* If there's no client surface under the cursor, set the cursor image to a
