@@ -10,7 +10,7 @@ static inline int
 client_is_x11(Client *c)
 {
 #ifdef XWAYLAND
-	return c->type == X11Managed || c->type == X11Unmanaged;
+	return c->type == X11;
 #endif
 	return 0;
 }
