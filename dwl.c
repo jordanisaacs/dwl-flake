@@ -2375,7 +2375,7 @@ setup(void)
 	 * Initialise the XWayland X server.
 	 * It will be started when the first X client is started.
 	 */
-	if (!(xwayland = wlr_xwayland_create(dpy, compositor, 1))) {
+	if ((xwayland = wlr_xwayland_create(dpy, compositor, 1))) {
 		LISTEN_STATIC(&xwayland->events.ready, xwaylandready);
 		LISTEN_STATIC(&xwayland->events.new_surface, createnotifyx11);
 
