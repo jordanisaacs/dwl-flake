@@ -2386,6 +2386,10 @@ setup(void)
 
 	wlr_scene_set_presentation(scene, wlr_presentation_create(dpy, backend));
 
+	/* Make sure XWayland clients don't connect to the parent X server,
+	 * e.g when running in the x11 backend or the wayland backend and the
+	 * compositor has Xwayland support */
+	unsetenv("DISPLAY");
 #ifdef XWAYLAND
 	/*
 	 * Initialise the XWayland X server.
