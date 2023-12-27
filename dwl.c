@@ -522,13 +522,13 @@ arrangelayers(Monitor *m)
 	/* Find topmost keyboard interactive layer, if such a layer exists */
 	for (i = 0; i < LENGTH(layers_above_shell); i++) {
 		wl_list_for_each_reverse(l, &m->layers[layers_above_shell[i]], link) {
-			if (!locked && l->layer_surface->current.keyboard_interactive && l->mapped) {
-				/* Deactivate the focused client. */
-				focusclient(NULL, 0);
-				exclusive_focus = l;
-				client_notify_enter(l->layer_surface->surface, wlr_seat_get_keyboard(seat));
-				return;
-			}
+			if (locked || !l->layer_surface->current.keyboard_interactive || !l->mapped)
+				continue;
+			/* Deactivate the focused client. */
+			focusclient(NULL, 0);
+			exclusive_focus = l;
+			client_notify_enter(l->layer_surface->surface, wlr_seat_get_keyboard(seat));
+			return;
 		}
 	}
 }
@@ -710,7 +710,6 @@ commitlayersurfacenotify(struct wl_listener *listener, void *data)
 	LayerSurface *l = wl_container_of(listener, l, surface_commit);
 	struct wlr_layer_surface_v1 *layer_surface = l->layer_surface;
 	struct wlr_scene_tree *scene_layer = layers[layermap[layer_surface->current.layer]];
-
 
 	if (layer_surface->current.committed == 0 && l->mapped == layer_surface->surface->mapped)
 		return;
@@ -1393,9 +1392,10 @@ keypress(struct wl_listener *listener, void *data)
 
 	/* On _press_ if there is no active screen locker,
 	 * attempt to process a compositor keybinding. */
-	if (!locked && event->state == WL_KEYBOARD_KEY_STATE_PRESSED)
+	if (!locked && event->state == WL_KEYBOARD_KEY_STATE_PRESSED) {
 		for (i = 0; i < nsyms; i++)
 			handled = keybinding(mods, syms[i]) || handled;
+	}
 
 	if (handled && group->wlr_group->keyboard.repeat_info.delay > 0) {
 		group->mods = mods;
@@ -2281,7 +2281,7 @@ setup(void)
 	/* Use decoration protocols to negotiate server-side decorations */
 	wlr_server_decoration_manager_set_default_mode(
 			wlr_server_decoration_manager_create(dpy),
-				WLR_SERVER_DECORATION_MANAGER_MODE_SERVER);
+			WLR_SERVER_DECORATION_MANAGER_MODE_SERVER);
 	xdg_decoration_mgr = wlr_xdg_decoration_manager_v1_create(dpy);
 	LISTEN_STATIC(&xdg_decoration_mgr->events.new_toplevel_decoration, createdecoration);
 
@@ -2557,10 +2557,10 @@ unmapnotify(struct wl_listener *listener, void *data)
 	}
 
 	if (client_is_unmanaged(c)) {
-		if (c == exclusive_focus)
+		if (c == exclusive_focus) {
 			exclusive_focus = NULL;
-		if (client_surface(c) == seat->keyboard_state.focused_surface)
 			focusclient(focustop(selmon), 1);
+		}
 	} else {
 		wl_list_remove(&c->link);
 		setmon(c, NULL, 0);
@@ -2600,10 +2600,11 @@ updatemons(struct wl_listener *listener, void *data)
 		m->m = m->w = (struct wlr_box){0};
 	}
 	/* Insert outputs that need to */
-	wl_list_for_each(m, &mons, link)
+	wl_list_for_each(m, &mons, link) {
 		if (m->wlr_output->enabled
 				&& !wlr_output_layout_get(output_layout, m->wlr_output))
 			wlr_output_layout_add_auto(output_layout, m->wlr_output);
+	}
 
 	/* Now that we update the output layout we can get its box */
 	wlr_output_layout_get_box(output_layout, NULL, &sgeom);
