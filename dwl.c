@@ -2076,6 +2076,8 @@ setgamma(struct wl_listener *listener, void *data)
 {
 	struct wlr_gamma_control_manager_v1_set_gamma_event *event = data;
 	Monitor *m = event->output->data;
+	if (!m)
+		return;
 	m->gamma_lut_changed = 1;
 	wlr_output_schedule_frame(m->wlr_output);
 }
