@@ -34,8 +34,10 @@ given the base on which it is built. Implemented default features are:
 - Damage tracking provided by scenegraph API
 
 Given the Wayland architecture, dwl has to implement features from dwm **and**
-the xorg-server. Because of this, it is impossible to maintain the original project goal of 2000
-SLOC and have a reasonably complete compositor with features comparable to dwm.
+the xorg-server. Because of this, it is impossible to maintain the original
+project goal of 2000 SLOC and have a reasonably complete compositor with
+features comparable to dwm. However, this does not mean that the code will grow
+indiscriminately. We will try to keep the code as small as possible.
 
 Features under consideration (possibly as patches) are:
 
