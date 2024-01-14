@@ -157,8 +157,8 @@ possible.
 Many thanks to suckless.org and the dwm developers and community for the
 inspiration, and to the various contributors to the project, including:
 
+- **Devin J. Pohly for creating and nurturing the fledgling project**
 - Alexander Courtis for the XWayland implementation
-- Devin J. Pohly for creating and nurturing the fledgling project
 - Guido Cella for the layer-shell protocol implementation, patch maintenance,
   and for helping to keep the project running
 - Stivvo for output management and fullscreen support, and patch maintenance
