@@ -34,6 +34,14 @@ body:
           required: false
 
     - type: textarea
+      attributes:
+          label: Description
+          value: |
+              The steps you took to reproduce the problem.
+      validations:
+          required: false
+
+    - type: textarea
       id: debug_log
       attributes:
           label: Debug Log
@@ -50,13 +58,5 @@ body:
           value: |
               - Only required if dwl crashes.
               - If the lines mentioning dwl or wlroots have `??`. Please compile both dwl and wlroots from source (enabling debug symbols) and try to reproduce.
-      validations:
-          required: false
-
-    - type: textarea
-      attributes:
-          label: Description
-          value: |
-              The steps you took to reproduce the problem.
       validations:
           required: false
