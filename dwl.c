@@ -871,7 +871,8 @@ createmon(struct wl_listener *listener, void *data)
 			m->m.y = r->y;
 			m->mfact = r->mfact;
 			m->nmaster = r->nmaster;
-			m->lt[0] = m->lt[1] = r->lt;
+			m->lt[0] = r->lt;
+			m->lt[1] = &layouts[LENGTH(layouts) > 1 && r->lt != &layouts[1]];
 			strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, LENGTH(m->ltsymbol));
 			wlr_output_state_set_scale(&state, r->scale);
 			wlr_output_state_set_transform(&state, r->rr);
