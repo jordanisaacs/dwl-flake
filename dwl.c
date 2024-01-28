@@ -453,7 +453,6 @@ applyrules(Client *c)
 			}
 		}
 	}
-	wlr_scene_node_reparent(&c->scene->node, layers[c->isfloating ? LyrFloat : LyrTile]);
 	setmon(c, mon, newtags);
 }
 
@@ -1546,7 +1545,6 @@ mapnotify(struct wl_listener *listener, void *data)
 	/* TODO: https://github.com/djpohly/dwl/pull/334#issuecomment-1330166324 */
 	if (c->type == XDGShell && (p = client_get_parent(c))) {
 		c->isfloating = 1;
-		wlr_scene_node_reparent(&c->scene->node, layers[LyrFloat]);
 		setmon(c, p->mon, p->tags);
 	} else {
 		applyrules(c);
