@@ -183,6 +183,18 @@ client_get_parent(Client *c)
 	return p;
 }
 
+static inline int
+client_has_children(Client *c)
+{
+#ifdef XWAYLAND
+    if (client_is_x11(c))
+        return !wl_list_empty(&c->surface.xwayland->children);
+#endif
+    /* surface.xdg->link is never empty because it always contains at least the
+     * surface itself. */
+    return wl_list_length(&c->surface.xdg->link) > 1;
+}
+
 static inline const char *
 client_get_title(Client *c)
 {
