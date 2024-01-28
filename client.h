@@ -172,8 +172,11 @@ client_get_parent(Client *c)
 {
 	Client *p = NULL;
 #ifdef XWAYLAND
-	if (client_is_x11(c) && c->surface.xwayland->parent)
-		toplevel_from_wlr_surface(c->surface.xwayland->parent->surface, &p, NULL);
+    if (client_is_x11(c)) {
+        if (c->surface.xwayland->parent)
+            toplevel_from_wlr_surface(c->surface.xwayland->parent->surface, &p, NULL);
+        return p;
+    }
 #endif
 	if (c->surface.xdg->toplevel->parent)
 		toplevel_from_wlr_surface(c->surface.xdg->toplevel->parent->base->surface, &p, NULL);
