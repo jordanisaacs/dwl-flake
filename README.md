@@ -86,7 +86,7 @@ Wayland without restarting the entire display server, so any changes will take
 effect the next time dwl is executed.
 
 As in the dwm community, we encourage users to share patches they have created.
-Check out the [patches page on our wiki]!
+Check out the [patches repository]!
 
 ## Running dwl
 
@@ -169,6 +169,7 @@ inspiration, and to the various contributors to the project, including:
 [Wayland]: https://wayland.freedesktop.org/
 [wlroots]: https://gitlab.freedesktop.org/wlroots/wlroots/
 [wlroots-next branch]: https://codeberg.org/dwl/dwl/src/branch/wlroots-next
+[patches repository]: https://codeberg.org/dwl/dwl-patches
 [patches page on our wiki]: https://codeberg.org/dwl/dwl/wiki/Patches
 [s6]: https://skarnet.org/software/s6/
 [anopa]: https://jjacky.com/anopa/
