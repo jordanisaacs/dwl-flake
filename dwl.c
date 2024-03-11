@@ -1675,6 +1675,9 @@ motionabsolute(struct wl_listener *listener, void *data)
 	struct wlr_pointer_motion_absolute_event *event = data;
 	double lx, ly, dx, dy;
 
+	if (!event->time_msec) /* this is 0 with virtual pointers */
+		wlr_cursor_warp_absolute(cursor, &event->pointer->base, event->x, event->y);
+
 	wlr_cursor_absolute_to_layout_coords(cursor, &event->pointer->base, event->x, event->y, &lx, &ly);
 	dx = lx - cursor->x;
 	dy = ly - cursor->y;
