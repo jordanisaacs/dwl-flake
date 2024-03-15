@@ -11,20 +11,7 @@
       system = "x86_64-linux";
 
       pkgs = nixpkgs.legacyPackages.${system};
-      wlroots = pkgs.wlroots.overrideAttrs (oa: {
-        src = pkgs.fetchFromGitLab {
-          domain = "gitlab.freedesktop.org";
-          owner = "wlroots";
-          repo = "wlroots";
-          rev = "0.17.0";
-          hash = "sha256-VUrnSG4UAAH0cBy15lG0w8RernwegD6lkOdLvWU3a4c=";
-        };
-        buildInputs = with pkgs; oa.buildInputs ++ [
-          hwdata
-          libliftoff
-          libdisplay-info
-        ];
-      });
+      wlroots = pkgs.wlroots_0_17;
 
       dwlBuilder = pkgs.callPackage ./lib {
         stdenv = pkgs.stdenvAdapters.keepDebugInfo pkgs.stdenv;
