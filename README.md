@@ -5,12 +5,11 @@ Or on our [Discord server].
 
 dwl is a compact, hackable compositor for [Wayland] based on [wlroots]. It is
 intended to fill the same space in the Wayland world that dwm does in X11,
-primarily in terms of philosophy, and secondarily in terms of functionality.
+primarily in terms of functionality, and secondarily in terms of philosophy.
 Like dwm, dwl is:
 
 - Easy to understand, hack on, and extend with patches
 - One C source file (or a very small number) configurable via `config.h`
-- Limited to 2200 SLOC to promote hackability
 - Tied to as few external dependencies as possible
 
 dwl is not meant to provide every feature under the sun. Instead, like dwm, it
@@ -33,6 +32,12 @@ given the base on which it is built. Implemented default features are:
 - Zero flickering - Wayland users naturally expect that "every frame is perfect"
 - Layer shell popups (used by Waybar)
 - Damage tracking provided by scenegraph API
+
+Given the Wayland architecture, dwl has to implement features from dwm **and**
+the xorg-server. Because of this, it is impossible to maintain the original
+project goal of 2000 SLOC and have a reasonably complete compositor with
+features comparable to dwm. However, this does not mean that the code will grow
+indiscriminately. We will try to keep the code as small as possible.
 
 Features under consideration (possibly as patches) are:
 
@@ -81,7 +86,7 @@ Wayland without restarting the entire display server, so any changes will take
 effect the next time dwl is executed.
 
 As in the dwm community, we encourage users to share patches they have created.
-Check out the [patches page on our wiki]!
+Check out the dwl [patches repository] and [patches wiki]!
 
 ## Running dwl
 
@@ -105,7 +110,7 @@ shell command using `/bin/sh -c`.  It serves a similar function to `.xinitrc`,
 but differs in that the display server will not shut down when this process
 terminates. Instead, dwl will send this process a SIGTERM at shutdown and wait
 for it to terminate (if it hasn't already). This makes it ideal for execing into
-a user service manager like [s6], [anopa], [runit], or [`systemd --user`].
+a user service manager like [s6], [anopa], [runit], [dinit], or [`systemd --user`].
 
 Note: The `-s` command is run as a *child process* of dwl, which means that it
 does not have the ability to affect the environment of dwl or of any processes
@@ -152,6 +157,7 @@ possible.
 Many thanks to suckless.org and the dwm developers and community for the
 inspiration, and to the various contributors to the project, including:
 
+- **Devin J. Pohly for creating and nurturing the fledgling project**
 - Alexander Courtis for the XWayland implementation
 - Guido Cella for the layer-shell protocol implementation, patch maintenance,
   and for helping to keep the project running
@@ -163,10 +169,12 @@ inspiration, and to the various contributors to the project, including:
 [Wayland]: https://wayland.freedesktop.org/
 [wlroots]: https://gitlab.freedesktop.org/wlroots/wlroots/
 [wlroots-next branch]: https://codeberg.org/dwl/dwl/src/branch/wlroots-next
-[patches page on our wiki]: https://codeberg.org/dwl/dwl/wiki/Patches
+[patches repository]: https://codeberg.org/dwl/dwl-patches
+[patches wiki]: https://codeberg.org/dwl/dwl-patches/wiki
 [s6]: https://skarnet.org/software/s6/
 [anopa]: https://jjacky.com/anopa/
 [runit]: http://smarden.org/runit/faq.html#userservices
+[dinit]: https://davmac.org/projects/dinit/
 [`systemd --user`]: https://wiki.archlinux.org/title/Systemd/User
 [wiki]: https://codeberg.org/dwl/dwl/wiki/Home#compatible-status-bars
 [list of useful resources on our wiki]:

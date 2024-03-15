@@ -10,7 +10,7 @@ static inline int
 client_is_x11(Client *c)
 {
 #ifdef XWAYLAND
-	return c->type == X11Managed || c->type == X11Unmanaged;
+	return c->type == X11;
 #endif
 	return 0;
 }
@@ -172,12 +172,27 @@ client_get_parent(Client *c)
 {
 	Client *p = NULL;
 #ifdef XWAYLAND
-	if (client_is_x11(c) && c->surface.xwayland->parent)
-		toplevel_from_wlr_surface(c->surface.xwayland->parent->surface, &p, NULL);
+    if (client_is_x11(c)) {
+        if (c->surface.xwayland->parent)
+            toplevel_from_wlr_surface(c->surface.xwayland->parent->surface, &p, NULL);
+        return p;
+    }
 #endif
 	if (c->surface.xdg->toplevel->parent)
 		toplevel_from_wlr_surface(c->surface.xdg->toplevel->parent->base->surface, &p, NULL);
 	return p;
+}
+
+static inline int
+client_has_children(Client *c)
+{
+#ifdef XWAYLAND
+    if (client_is_x11(c))
+        return !wl_list_empty(&c->surface.xwayland->children);
+#endif
+    /* surface.xdg->link is never empty because it always contains at least the
+     * surface itself. */
+    return wl_list_length(&c->surface.xdg->link) > 1;
 }
 
 static inline const char *
@@ -270,7 +285,8 @@ static inline int
 client_is_unmanaged(Client *c)
 {
 #ifdef XWAYLAND
-	return c->type == X11Unmanaged;
+	if (client_is_x11(c))
+		return c->surface.xwayland->override_redirect;
 #endif
 	return 0;
 }
@@ -338,10 +354,10 @@ client_set_size(Client *c, uint32_t width, uint32_t height)
 		return 0;
 	}
 #endif
-	if (width == c->surface.xdg->toplevel->current.width
-			&& height ==c->surface.xdg->toplevel->current.height)
+	if ((int32_t)width == c->surface.xdg->toplevel->current.width
+			&& (int32_t)height == c->surface.xdg->toplevel->current.height)
 		return 0;
-	return wlr_xdg_toplevel_set_size(c->surface.xdg->toplevel, width, height);
+	return wlr_xdg_toplevel_set_size(c->surface.xdg->toplevel, (int32_t)width, (int32_t)height);
 }
 
 static inline void
@@ -351,7 +367,7 @@ client_set_tiled(Client *c, uint32_t edges)
 	if (client_is_x11(c))
 		return;
 #endif
-	if (wl_resource_get_version(c->surface.xdg->resource)
+	if (wl_resource_get_version(c->surface.xdg->toplevel->resource)
 			>= XDG_TOPLEVEL_STATE_TILED_RIGHT_SINCE_VERSION) {
 		wlr_xdg_toplevel_set_tiled(c->surface.xdg->toplevel, edges);
 	} else {
